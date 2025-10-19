@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bolo de Chocolate Cremoso - SaborConnect</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f5;
+      }
+
+      header {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+      }
+
+      nav {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ff6b35;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .nav-links a {
+        color: #666;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: #ff6b35;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 90px auto 2rem;
+        padding: 0 2rem;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+        text-decoration: none;
+        margin-bottom: 2rem;
+        transition: color 0.3s;
+      }
+
+      .back-link:hover {
+        color: #ff6b35;
+      }
+
+      .recipe-header {
+        background: white;
+        border-radius: 20px 20px 0 0;
+        overflow: hidden;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .recipe-hero {
+        height: 400px;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 8rem;
+      }
+
+      .recipe-info {
+        padding: 2rem;
+      }
+
+      .recipe-category-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: #fff3f0;
+        color: #ff6b35;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .recipe-title {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+
+      .recipe-author-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .author-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .author-details h4 {
+        color: #333;
+        margin-bottom: 0.2rem;
+      }
+
+      .author-details p {
+        color: #999;
+        font-size: 0.85rem;
+      }
+
+      .recipe-actions {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .action-btn {
+        padding: 0.8rem 1.5rem;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+      }
+
+      .action-btn.liked {
+        background: #fff3f0;
+        border-color: #ff6b35;
+        color: #ff6b35;
+      }
+
+      .action-btn.saved {
+        background: #f0f7ff;
+        border-color: #3498db;
+        color: #3498db;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .recipe-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+        background: #f9f9f9;
+        border-radius: 12px;
+        margin-top: 1.5rem;
+      }
+
+      .meta-item {
+        text-align: center;
+      }
+
+      .meta-icon {
+        font-size: 2rem;
+        color: #ff6b35;
+        margin-bottom: 0.5rem;
+      }
+
+      .meta-value {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .meta-label {
+        color: #666;
+        font-size: 0.85rem;
+      }
+
+      .recipe-content {
+        background: white;
+        border-radius: 0 0 20px 20px;
+        padding: 2rem;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .content-section {
+        margin-bottom: 3rem;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .section-title i {
+        color: #ff6b35;
+      }
+
+      .ingredients-list {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid #ff6b35;
+      }
+
+      .ingredient-item {
+        padding: 0.8rem;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .ingredient-item:last-child {
+        border-bottom: none;
+      }
+
+      .ingredient-checkbox {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .ingredient-checkbox:hover {
+        border-color: #ff6b35;
+      }
+
+      .preparation-steps {
+        counter-reset: step-counter;
+      }
+
+      .step-item {
+        counter-increment: step-counter;
+        position: relative;
+        padding-left: 4rem;
+        margin-bottom: 2rem;
+      }
+
+      .step-item::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .step-item p {
+        line-height: 1.8;
+        color: #555;
+      }
+
+      .comments-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-top: 2rem;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .comment-form {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+      }
+
+      .comment-form textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .comment-form textarea:focus {
+        outline: none;
+        border-color: #ff6b35;
+      }
+
+      .comment-form button {
+        margin-top: 1rem;
+        padding: 0.8rem 2rem;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .comment-form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+      }
+
+      .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .comment-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #f9f9f9;
+        border-radius: 12px;
+      }
+
+      .comment-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #f7931e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+
+      .comment-content {
+        flex: 1;
+      }
+
+      .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+
+      .comment-author {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .comment-date {
+        color: #999;
+        font-size: 0.85rem;
+      }
+
+      .comment-text {
+        color: #555;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 768px) {
+        .recipe-title {
+          font-size: 1.8rem;
+        }
+
+        .recipe-hero {
+          height: 300px;
+          font-size: 5rem;
+        }
+
+        .recipe-actions {
+          flex-wrap: wrap;
+          width: 100%;
+        }
+
+        .action-btn {
+          flex: 1;
+        }
+
+        .step-item {
+          padding-left: 3rem;
+        }
+
+        .step-item::before {
+          width: 35px;
+          height: 35px;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="index.html" class="logo">
+          <i class="fas fa-utensils"></i>
+          SaborConnect
+        </a>
+
+        <div class="nav-links">
+          <a href="receitas.html">Receitas</a>
+          <a href="dashboard.html">Dashboard</a>
+          <div
+            class="user-avatar"
+            onclick="window.location.href='dashboard.html'"
+          >
+            AP
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container">
+      <a href="receitas.html" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Voltar para receitas
+      </a>
+
+      <div class="recipe-header">
+        <div class="recipe-hero">
+          <i class="fas fa-birthday-cake"></i>
+        </div>
+
+        <div class="recipe-info">
+          <span class="recipe-category-badge">Sobremesa</span>
+          <h1 class="recipe-title">Bolo de Chocolate Cremoso com Ganache</h1>
+
+          <div class="recipe-author-section">
+            <div class="author-info">
+              <div class="author-avatar">AP</div>
+              <div class="author-details">
+                <h4>Ana Paula Silva</h4>
+                <p>Publicado há 2 dias</p>
+              </div>
+            </div>
+
+            <div class="recipe-actions">
+              <button class="action-btn liked">
+                <i class="fas fa-heart"></i>
+                <span>245</span>
+              </button>
+              <button class="action-btn saved">
+                <i class="fas fa-bookmark"></i>
+                <span>Salvo</span>
+              </button>
+              <button class="action-btn">
+                <i class="fas fa-share-alt"></i>
+                <span>Compartilhar</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="recipe-meta-grid">
+            <div class="meta-item">
+              <div class="meta-icon"><i class="far fa-clock"></i></div>
+              <div class="meta-value">45 min</div>
+              <div class="meta-label">Tempo de Preparo</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon"><i class="fas fa-users"></i></div>
+              <div class="meta-value">8 porções</div>
+              <div class="meta-label">Rendimento</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon"><i class="fas fa-signal"></i></div>
+              <div class="meta-value">Médio</div>
+              <div class="meta-label">Dificuldade</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-icon"><i class="fas fa-eye"></i></div>
+              <div class="meta-value">1.2k</div>
+              <div class="meta-label">Visualizações</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="recipe-content">
+        <div class="content-section">
+          <h2 class="section-title">
+            <i class="fas fa-list-ul"></i>
+            Ingredientes
+          </h2>
+          <div class="ingredients-list">
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>3 ovos inteiros</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>2 xícaras de açúcar</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>1 xícara de óleo</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>1 xícara de chocolate em pó</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>2 xícaras de farinha de trigo</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>1 xícara de água fervente</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>1 colher de sopa de fermento em pó</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>1 pitada de sal</span>
+            </div>
+            <div
+              class="ingredient-item"
+              style="margin-top: 1rem; font-weight: 600; color: #ff6b35"
+            >
+              <i class="fas fa-star"></i>
+              <span>Para a Ganache:</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>200g de chocolate meio amargo</span>
+            </div>
+            <div class="ingredient-item">
+              <div class="ingredient-checkbox"></div>
+              <span>1 caixinha de creme de leite (200ml)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h2 class="section-title">
+            <i class="fas fa-utensils"></i>
+            Modo de Preparo
+          </h2>
+          <div class="preparation-steps">
+            <div class="step-item">
+              <p>
+                Preaqueça o forno a 180°C e unte uma forma redonda com manteiga
+                e farinha. Reserve.
+              </p>
+            </div>
+            <div class="step-item">
+              <p>
+                Em uma tigela grande, bata os ovos com o açúcar até obter uma
+                mistura clara e fofa. Adicione o óleo e continue batendo.
+              </p>
+            </div>
+            <div class="step-item">
+              <p>
+                Em outra tigela, peneire a farinha de trigo, o chocolate em pó,
+                o fermento e o sal. Misture bem os ingredientes secos.
+              </p>
+            </div>
+            <div class="step-item">
+              <p>
+                Adicione os ingredientes secos à mistura de ovos aos poucos,
+                alternando com a água fervente. Mexa delicadamente até obter uma
+                massa homogênea e lisa.
+              </p>
+            </div>
+            <div class="step-item">
+              <p>
+                Despeje a massa na forma preparada e leve ao forno por
+                aproximadamente 40-45 minutos, ou até que um palito inserido no
+                centro saia limpo.
+              </p>
+            </div>
+            <div class="step-item">
+              <p>
+                Enquanto o bolo assa, prepare a ganache: pique o chocolate e
+                coloque em uma tigela. Aqueça o creme de leite até começar a
+                ferver e despeje sobre o chocolate. Aguarde 2 minutos e misture
+                até ficar brilhante e homogêneo.
+              </p>
+            </div>
+            <div class="step-item">
+              <p>
+                Retire o bolo do forno, deixe esfriar completamente na forma por
+                10 minutos, depois desenforme. Quando estiver em temperatura
+                ambiente, cubra com a ganache e leve à geladeira por 30 minutos
+                antes de servir.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <h2 class="section-title">
+            <i class="fas fa-lightbulb"></i>
+            Dicas Especiais
+          </h2>
+          <div
+            style="
+              background: #fff9e6;
+              padding: 1.5rem;
+              border-radius: 12px;
+              border-left: 4px solid #f7931e;
+            "
+          >
+            <ul style="padding-left: 1.5rem; line-height: 2">
+              <li>
+                Para um bolo ainda mais úmido, substitua metade da água por café
+                forte.
+              </li>
+              <li>
+                Você pode decorar com raspas de chocolate ou morangos frescos.
+              </li>
+              <li>
+                A ganache pode ser preparada com antecedência e conservada na
+                geladeira por até 3 dias.
+              </li>
+              <li>
+                Se preferir uma ganache mais espessa para cobrir, use proporção
+                de 2:1 (chocolate:creme).
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="comments-section">
+        <h2 class="section-title">
+          <i class="fas fa-comments"></i>
+          Comentários (18)
+        </h2>
+
+        <div class="comment-form">
+          <textarea
+            placeholder="Compartilhe sua experiência com esta receita..."
+          ></textarea>
+          <button>Publicar Comentário</button>
+        </div>
+
+        <div class="comments-list">
+          <div class="comment-item">
+            <div class="comment-avatar">CE</div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">Carlos Eduardo</span>
+                <span class="comment-date">Há 1 dia</span>
+              </div>
+              <p class="comment-text">
+                Fiz ontem para o aniversário da minha mãe e foi um sucesso
+                absoluto! O bolo ficou super úmido e a ganache derretia na boca.
+                Já salvei nos favoritos para fazer mais vezes. Parabéns pela
+                receita! 🍰❤️
+              </p>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="comment-avatar">MS</div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">Maria Santos</span>
+                <span class="comment-date">Há 2 dias</span>
+              </div>
+              <p class="comment-text">
+                Perfeito! Segui a dica de adicionar café e ficou maravilhoso. O
+                chocolate ficou ainda mais intenso. Recomendo muito!
+              </p>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="comment-avatar">JP</div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">João Pedro</span>
+                <span class="comment-date">Há 3 dias</span>
+              </div>
+              <p class="comment-text">
+                Primeira vez fazendo bolo e deu super certo! As instruções são
+                muito claras e fáceis de seguir. Obrigado por compartilhar! 😊
+              </p>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="comment-avatar">FL</div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">Fernanda Lima</span>
+                <span class="comment-date">Há 4 dias</span>
+              </div>
+              <p class="comment-text">
+                Uma dúvida: posso usar chocolate em barra derretido ao invés de
+                chocolate em pó na massa? Alguém já tentou?
+              </p>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="comment-avatar">RA</div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">Ricardo Alves</span>
+                <span class="comment-date">Há 5 dias</span>
+              </div>
+              <p class="comment-text">
+                Simplesmente espetacular! Vou fazer novamente no fim de semana.
+                A textura ficou perfeita! 👏👏👏
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Toggle ingredient checkbox visual
+      document.querySelectorAll(".ingredient-checkbox").forEach((checkbox) => {
+        checkbox.addEventListener("click", function () {
+          if (this.style.background === "rgb(255, 107, 53)") {
+            this.style.background = "";
+            this.innerHTML = "";
+          } else {
+            this.style.background = "#ff6b35";
+            this.innerHTML =
+              '<i class="fas fa-check" style="color: white; font-size: 0.8rem;"></i>';
+          }
+        });
+      });
+
+      // Toggle like button
+      document
+        .querySelector(".action-btn.liked")
+        .addEventListener("click", function () {
+          if (this.classList.contains("liked")) {
+            this.classList.remove("liked");
+            this.querySelector("span").textContent = "244";
+          } else {
+            this.classList.add("liked");
+            this.querySelector("span").textContent = "245";
+          }
+        });
+
+      // Toggle save button
+      document
+        .querySelector(".action-btn.saved")
+        .addEventListener("click", function () {
+          if (this.classList.contains("saved")) {
+            this.classList.remove("saved");
+            this.querySelector("span").textContent = "Salvar";
+          } else {
+            this.classList.add("saved");
+            this.querySelector("span").textContent = "Salvo";
+          }
+        });
+    </script>
+  </body>
+</html>
