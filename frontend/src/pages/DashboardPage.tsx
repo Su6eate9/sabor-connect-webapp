@@ -6,6 +6,7 @@ import { RecipeCard } from '@/components/RecipeCard';
 import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
 import { EmptyState } from '@/components/EmptyState';
 import { StatCard } from '@/components/StatCard';
+import { ActivityTimeline } from '@/components/ActivityTimeline';
 import { Button } from '@/components/Button';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
@@ -29,6 +30,30 @@ export const DashboardPage = () => {
       return response.data;
     },
   });
+
+  // Mock activities (would come from backend in production)
+  const recentActivities = [
+    ...(myRecipes?.data?.slice(0, 3).map((recipe) => ({
+      id: `recipe-${recipe.id}`,
+      type: 'recipe_created' as const,
+      title: 'Nova receita publicada',
+      description: recipe.title,
+      timestamp: new Date(recipe.createdAt),
+      icon: '📖',
+      color: 'bg-primary',
+    })) || []),
+    ...(favorites?.data?.slice(0, 2).map((recipe) => ({
+      id: `fav-${recipe.id}`,
+      type: 'recipe_favorited' as const,
+      title: 'Receita favoritada',
+      description: recipe.title,
+      timestamp: new Date(recipe.createdAt),
+      icon: '❤️',
+      color: 'bg-red-500',
+    })) || []),
+  ]
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    .slice(0, 5);
 
   return (
     <Layout>
@@ -142,6 +167,16 @@ export const DashboardPage = () => {
                 }
               />
             )}
+          </section>
+
+          {/* Activity Timeline */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
+              Atividades Recentes
+            </h2>
+            <div className="card p-6">
+              <ActivityTimeline activities={recentActivities} />
+            </div>
           </section>
         </div>
       </div>
