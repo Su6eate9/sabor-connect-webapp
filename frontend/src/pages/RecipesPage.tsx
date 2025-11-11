@@ -7,6 +7,7 @@ import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
 import { Pagination } from '@/components/Pagination';
 import { EmptyState } from '@/components/EmptyState';
 import { AdvancedFilters, FilterValues } from '@/components/AdvancedFilters';
+import { VoiceSearch } from '@/components/VoiceSearch';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
 
@@ -75,15 +76,16 @@ export const RecipesPage = () => {
 
           <div className="card p-6 mb-8">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
+              <div className="flex-1 flex gap-2">
                 <input
                   type="text"
                   placeholder="Buscar receitas..."
-                  className="input"
+                  className="input flex-1"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 />
+                <VoiceSearch onResult={(text) => setSearch(text)} />
               </div>
               <div className="flex gap-3">
                 <AdvancedFilters onApply={handleApplyFilters} onReset={handleResetFilters} />

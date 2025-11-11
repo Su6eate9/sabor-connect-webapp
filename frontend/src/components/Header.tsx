@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { MobileMenu } from '@/components/MobileMenu';
 import { Autocomplete, AutocompleteItem } from '@/components/Autocomplete';
+import { VoiceSearch } from '@/components/VoiceSearch';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ROUTES } from '@/lib/constants';
 import api from '@/lib/api';
@@ -49,12 +50,17 @@ export const Header = () => {
 
           {/* Search Bar - Desktop */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
-            <Autocomplete
-              placeholder="Buscar receitas..."
-              onSearch={handleSearch}
-              suggestions={suggestions}
-              isLoading={isSearching}
-            />
+            <div className="flex items-center gap-2 w-full">
+              <div className="flex-1">
+                <Autocomplete
+                  placeholder="Buscar receitas..."
+                  onSearch={handleSearch}
+                  suggestions={suggestions}
+                  isLoading={isSearching}
+                />
+              </div>
+              <VoiceSearch onResult={(text) => setSearchQuery(text)} />
+            </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
