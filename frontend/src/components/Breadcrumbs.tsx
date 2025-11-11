@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 interface BreadcrumbItem {
   label: string;
@@ -11,6 +12,39 @@ interface BreadcrumbsProps {
 }
 
 export const Breadcrumbs = ({ items, className = '' }: BreadcrumbsProps) => {
+  // Generate schema.org BreadcrumbList structured data for SEO
+  useEffect(() => {
+    const baseUrl = window.location.origin;
+    const breadcrumbSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.label,
+        ...(item.href && { item: `${baseUrl}${item.href}` }),
+      })),
+    };
+
+    // Add or update schema tag
+    let schemaTag = document.getElementById('breadcrumb-schema') as HTMLScriptElement;
+    if (!schemaTag) {
+      schemaTag = document.createElement('script') as HTMLScriptElement;
+      schemaTag.id = 'breadcrumb-schema';
+      schemaTag.type = 'application/ld+json';
+      document.head.appendChild(schemaTag);
+    }
+    schemaTag.textContent = JSON.stringify(breadcrumbSchema);
+
+    return () => {
+      // Cleanup on unmount
+      const tag = document.getElementById('breadcrumb-schema');
+      if (tag) {
+        tag.remove();
+      }
+    };
+  }, [items]);
+
   return (
     <nav aria-label="Breadcrumb" className={`flex ${className}`}>
       <ol className="flex items-center space-x-2 text-sm">
