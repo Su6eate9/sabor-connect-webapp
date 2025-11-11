@@ -3,11 +3,16 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ToastProvider';
+import { useOpenGraph } from '@/hooks/useOpenGraph';
 import { Layout } from '@/components/Layout';
-import { LoadingPage } from '@/components/LoadingSpinner';
+import { SkeletonRecipeDetails } from '@/components/SkeletonRecipeDetails';
 import { Button } from '@/components/Button';
 import { Textarea } from '@/components/Textarea';
 import { Alert } from '@/components/Alert';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { ShareButtons } from '@/components/ShareButtons';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { CookingMode } from '@/components/CookingMode';
 import api from '@/lib/api';
 import { Recipe, Comment, ApiResponse } from '@/types';
 import { ROUTES, DIFFICULTY_LABELS } from '@/lib/constants';
@@ -23,6 +28,10 @@ export const RecipeDetailsPage = () => {
   const [commentContent, setCommentContent] = useState('');
   const [error, setError] = useState('');
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeleteCommentDialog, setShowDeleteCommentDialog] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  const [showCookingMode, setShowCookingMode] = useState(false);
 
   // Fetch recipe
   const { data: recipeData, isLoading: loadingRecipe } = useQuery({
@@ -34,6 +43,15 @@ export const RecipeDetailsPage = () => {
   });
 
   const recipe = recipeData?.data;
+
+  // Add Open Graph meta tags for better social media sharing
+  useOpenGraph({
+    title: recipe?.title || 'SaborConnect - Receitas',
+    description: recipe?.description || 'Confira esta receita incrível no SaborConnect!',
+    image: recipe?.coverImageUrl,
+    url: typeof window !== 'undefined' ? window.location.href : undefined,
+    type: 'article',
+  });
 
   // Fetch comments
   const { data: commentsData, isLoading: loadingComments } = useQuery({
@@ -118,8 +136,21 @@ export const RecipeDetailsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', recipe?.id] });
       showToast('Comentário excluído', 'info');
+      setShowDeleteCommentDialog(false);
+      setCommentToDelete(null);
     },
   });
+
+  const handleDeleteComment = (commentId: string) => {
+    setCommentToDelete(commentId);
+    setShowDeleteCommentDialog(true);
+  };
+
+  const confirmDeleteComment = () => {
+    if (commentToDelete) {
+      deleteCommentMutation.mutate(commentToDelete);
+    }
+  };
 
   // Delete recipe mutation
   const deleteRecipeMutation = useMutation({
@@ -166,9 +197,12 @@ export const RecipeDetailsPage = () => {
   };
 
   const handleDeleteRecipe = () => {
-    if (window.confirm('Tem certeza que deseja excluir esta receita?')) {
-      deleteRecipeMutation.mutate();
-    }
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    deleteRecipeMutation.mutate();
+    setShowDeleteDialog(false);
   };
 
   const toggleIngredient = (index: number) => {
@@ -182,7 +216,11 @@ export const RecipeDetailsPage = () => {
   };
 
   if (loadingRecipe) {
-    return <LoadingPage />;
+    return (
+      <Layout>
+        <SkeletonRecipeDetails />
+      </Layout>
+    );
   }
 
   if (!recipe) {
@@ -203,6 +241,17 @@ export const RecipeDetailsPage = () => {
   return (
     <Layout>
       <div className="bg-gray-50 dark:bg-gray-900">
+        {/* Breadcrumbs */}
+        <div className="container-custom pt-4">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', href: ROUTES.HOME },
+              { label: 'Receitas', href: ROUTES.RECIPES },
+              { label: recipe.title },
+            ]}
+          />
+        </div>
+
         {/* Hero Image */}
         <div className="relative h-96 bg-gradient-to-b from-gray-900 to-transparent">
           {recipe.coverImageUrl ? (
@@ -257,6 +306,34 @@ export const RecipeDetailsPage = () => {
                     </Button>
                   </div>
                 )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <Button
+                  onClick={handleLike}
+                  variant={recipe.isLiked ? 'primary' : 'outline'}
+                  className={recipe.isLiked ? 'animate-pulse-heart' : ''}
+                  disabled={likeMutation.isPending}
+                >
+                  {likeMutation.isPending ? '⏳' : recipe.isLiked ? '❤️' : '🤍'}{' '}
+                  {recipe._count?.likes || 0} Curtidas
+                </Button>
+
+                <Button
+                  onClick={handleFavorite}
+                  variant={recipe.isFavorited ? 'primary' : 'outline'}
+                  disabled={favoriteMutation.isPending}
+                >
+                  {favoriteMutation.isPending ? '⏳' : recipe.isFavorited ? '⭐' : '☆'}{' '}
+                  {recipe.isFavorited ? 'Favoritado' : 'Favoritar'}
+                </Button>
+
+                <ShareButtons
+                  url={window.location.href}
+                  title={recipe.title}
+                  description={recipe.description}
+                />
               </div>
 
               {/* Meta Info */}
@@ -393,9 +470,18 @@ export const RecipeDetailsPage = () => {
 
             {/* Instructions */}
             <div className="card p-8 mb-8">
-              <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
-                Modo de Preparo
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white">
+                  Modo de Preparo
+                </h2>
+                <Button
+                  onClick={() => setShowCookingMode(true)}
+                  className="flex items-center space-x-2"
+                >
+                  <span>👨‍🍳</span>
+                  <span>Modo Cozinhando</span>
+                </Button>
+              </div>
               <div className="space-y-6">
                 {recipe.instructions.map((instruction, index) => (
                   <div key={index} className="flex gap-4">
@@ -489,7 +575,7 @@ export const RecipeDetailsPage = () => {
                           </div>
                           {user?.id === comment.authorId && (
                             <button
-                              onClick={() => deleteCommentMutation.mutate(comment.id)}
+                              onClick={() => handleDeleteComment(comment.id)}
                               className="text-sm text-red-600 hover:text-red-700"
                             >
                               Excluir
@@ -510,6 +596,40 @@ export const RecipeDetailsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+        title="Excluir Receita"
+        message="Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita."
+        confirmText="Sim, excluir"
+        cancelText="Cancelar"
+        type="danger"
+        loading={deleteRecipeMutation.isPending}
+      />
+
+      {/* Delete Comment Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteCommentDialog}
+        onClose={() => setShowDeleteCommentDialog(false)}
+        onConfirm={confirmDeleteComment}
+        title="Excluir Comentário"
+        message="Tem certeza que deseja excluir este comentário? Esta ação não pode ser desfeita."
+        confirmText="Sim, excluir"
+        cancelText="Cancelar"
+        type="danger"
+        loading={deleteCommentMutation.isPending}
+      />
+
+      {/* Cooking Mode */}
+      <CookingMode
+        isOpen={showCookingMode}
+        onClose={() => setShowCookingMode(false)}
+        instructions={recipe.instructions}
+        recipeTitle={recipe.title}
+      />
     </Layout>
   );
 };

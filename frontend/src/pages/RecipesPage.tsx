@@ -3,6 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
+import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
+import { Pagination } from '@/components/Pagination';
+import { AdvancedFilters, FilterValues } from '@/components/AdvancedFilters';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
 
@@ -34,6 +37,26 @@ export const RecipesPage = () => {
     setSearchParams(params);
   };
 
+  const handleApplyFilters = (filters: FilterValues) => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (filters.difficulty) params.append('difficulty', filters.difficulty);
+    if (filters.sortBy) params.append('sortBy', filters.sortBy);
+    if (filters.prepTime) params.append('prepTime', filters.prepTime);
+    if (filters.portions) params.append('portions', filters.portions);
+    params.append('page', '1');
+    setSearchParams(params);
+
+    // Update local state
+    if (filters.difficulty) setDifficulty(filters.difficulty);
+  };
+
+  const handleResetFilters = () => {
+    setSearchParams(new URLSearchParams());
+    setSearch('');
+    setDifficulty('');
+  };
+
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
     params.set('page', newPage.toString());
@@ -50,8 +73,8 @@ export const RecipesPage = () => {
           </h1>
 
           <div className="card p-6 mb-8">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="md:col-span-2">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
                 <input
                   type="text"
                   placeholder="Buscar receitas..."
@@ -61,25 +84,16 @@ export const RecipesPage = () => {
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 />
               </div>
-              <div>
-                <select
-                  className="input"
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value)}
-                >
-                  <option value="">Todas as dificuldades</option>
-                  <option value="EASY">Fácil</option>
-                  <option value="MEDIUM">Médio</option>
-                  <option value="HARD">Difícil</option>
-                </select>
+              <div className="flex gap-3">
+                <AdvancedFilters onApply={handleApplyFilters} onReset={handleResetFilters} />
+                <button onClick={handleSearch} className="btn-primary px-8">
+                  Buscar
+                </button>
               </div>
             </div>
-            <button onClick={handleSearch} className="btn-primary mt-4">
-              Buscar
-            </button>
           </div>
 
-          {isLoading && <div className="text-center py-12">Carregando receitas...</div>}
+          {isLoading && <SkeletonRecipeGrid count={6} />}
 
           {error && <div className="text-center py-12 text-red-600">Erro ao carregar receitas</div>}
 
@@ -92,25 +106,13 @@ export const RecipesPage = () => {
               </div>
 
               {data.meta && data.meta.totalPages > 1 && (
-                <div className="flex justify-center space-x-2">
-                  <button
-                    onClick={() => handlePageChange(page - 1)}
-                    disabled={page === 1}
-                    className="btn-outline disabled:opacity-50"
-                  >
-                    Anterior
-                  </button>
-                  <span className="py-2 px-4">
-                    Página {page} de {data.meta.totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(page + 1)}
-                    disabled={page === data.meta.totalPages}
-                    className="btn-outline disabled:opacity-50"
-                  >
-                    Próxima
-                  </button>
-                </div>
+                <Pagination
+                  currentPage={page}
+                  totalPages={data.meta.totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={data.meta.total}
+                  itemsPerPage={data.meta.limit}
+                />
               )}
             </>
           )}

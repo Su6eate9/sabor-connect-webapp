@@ -5,6 +5,9 @@ import { Layout } from '@/components/Layout';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { Alert } from '@/components/Alert';
+import { PasswordStrength } from '@/components/PasswordStrength';
+import { FieldError } from '@/components/FieldError';
+import { useFormValidation, validationRules } from '@/hooks/useFormValidation';
 import { ROUTES } from '@/lib/constants';
 
 export const RegisterPage = () => {
@@ -19,30 +22,45 @@ export const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  const {
+    errors,
+    handleBlur,
+    handleChange: handleValidationChange,
+    validateAll,
+  } = useFormValidation({
+    name: [
+      validationRules.required('Nome é obrigatório'),
+      validationRules.minLength(2, 'Nome deve ter pelo menos 2 caracteres'),
+    ],
+    email: [validationRules.required('E-mail é obrigatório'), validationRules.email()],
+    password: [
+      validationRules.required('Senha é obrigatória'),
+      validationRules.minLength(8, 'Senha deve ter pelo menos 8 caracteres'),
+    ],
+    confirmPassword: [validationRules.required('Confirmação de senha é obrigatória')],
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+    handleValidationChange(name, value);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Validações
+    // Validate all fields
+    if (!validateAll(formData)) {
+      return;
+    }
+
+    // Check password match
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres');
-      return;
-    }
-
-    if (formData.name.length < 2) {
-      setError('O nome deve ter pelo menos 2 caracteres');
       return;
     }
 
@@ -80,10 +98,11 @@ export const RegisterPage = () => {
                 name="name"
                 type="text"
                 label="Nome completo"
-                required
                 placeholder="Seu nome"
                 value={formData.name}
                 onChange={handleChange}
+                onBlur={() => handleBlur('name', formData.name)}
+                error={errors.name}
               />
 
               <Input
@@ -91,33 +110,43 @@ export const RegisterPage = () => {
                 name="email"
                 type="email"
                 label="E-mail"
-                required
                 placeholder="seu@email.com"
                 value={formData.email}
                 onChange={handleChange}
+                onBlur={() => handleBlur('email', formData.email)}
+                error={errors.email}
               />
 
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                label="Senha"
-                required
-                placeholder="Mínimo 6 caracteres"
-                value={formData.password}
-                onChange={handleChange}
-                helperText="Mínimo 6 caracteres"
-              />
+              <div>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  label="Senha"
+                  placeholder="Crie uma senha forte"
+                  value={formData.password}
+                  onChange={handleChange}
+                  onBlur={() => handleBlur('password', formData.password)}
+                  error={errors.password}
+                />
+                <PasswordStrength password={formData.password} />
+              </div>
 
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 label="Confirmar senha"
-                required
                 placeholder="Digite a senha novamente"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                onBlur={() => handleBlur('confirmPassword', formData.confirmPassword)}
+                error={
+                  errors.confirmPassword ||
+                  (formData.confirmPassword && formData.password !== formData.confirmPassword
+                    ? 'As senhas não coincidem'
+                    : '')
+                }
               />
 
               <Button type="submit" disabled={loading} fullWidth>
