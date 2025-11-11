@@ -1,0 +1,251 @@
+/* Print Styles - Optimized for Recipe Printing */
+
+@media print {
+  /* Reset and General */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000;
+    background: #fff;
+  }
+
+  /* Hide unnecessary elements */
+  header,
+  nav,
+  footer,
+  .no-print,
+  button,
+  [role='button'],
+  .btn-primary,
+  .btn-secondary,
+  input,
+  textarea,
+  select,
+  form,
+  aside,
+  .sidebar,
+  .breadcrumbs,
+  .share-buttons,
+  .actions,
+  .comments-section,
+  .related-recipes,
+  .advertisement,
+  [aria-label='Breadcrumb'],
+  [class*='mobile'],
+  [class*='toast'],
+  [class*='modal'],
+  [class*='dialog'] {
+    display: none !important;
+  }
+
+  /* Page breaks */
+  h1,
+  h2,
+  h3 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  img {
+    page-break-inside: avoid;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  table,
+  ul,
+  ol {
+    page-break-inside: avoid;
+  }
+
+  /* Recipe Title */
+  .recipe-title,
+  h1.recipe-title {
+    font-size: 24pt;
+    font-weight: bold;
+    margin-bottom: 16pt;
+    color: #000;
+  }
+
+  /* Recipe Description */
+  .recipe-description {
+    font-size: 11pt;
+    margin-bottom: 16pt;
+    color: #333;
+  }
+
+  /* Recipe Image */
+  .recipe-image,
+  [class*='cover-image'],
+  [class*='hero-image'] {
+    max-width: 100%;
+    max-height: 400px;
+    margin-bottom: 16pt;
+    border: 1px solid #ddd;
+  }
+
+  /* Recipe Info (time, difficulty, portions) */
+  .recipe-info,
+  .recipe-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16pt;
+    margin-bottom: 16pt;
+    padding: 8pt 0;
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+    font-size: 10pt;
+  }
+
+  .recipe-info-item {
+    flex: 1 1 auto;
+  }
+
+  /* Ingredients Section */
+  .ingredients-section {
+    margin-bottom: 24pt;
+  }
+
+  .ingredients-section h2 {
+    font-size: 16pt;
+    font-weight: bold;
+    margin-bottom: 8pt;
+    color: #000;
+    border-bottom: 1px solid #000;
+    padding-bottom: 4pt;
+  }
+
+  .ingredients-list,
+  .ingredient-item {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .ingredient-item {
+    padding: 4pt 0;
+    border-bottom: 1px dotted #ccc;
+  }
+
+  .ingredient-item::before {
+    content: '☐ ';
+    font-weight: bold;
+    margin-right: 8pt;
+  }
+
+  /* Instructions Section */
+  .instructions-section {
+    margin-bottom: 24pt;
+  }
+
+  .instructions-section h2 {
+    font-size: 16pt;
+    font-weight: bold;
+    margin-bottom: 8pt;
+    color: #000;
+    border-bottom: 1px solid #000;
+    padding-bottom: 4pt;
+  }
+
+  .instruction-step {
+    margin-bottom: 12pt;
+    padding-left: 32pt;
+    position: relative;
+  }
+
+  .instruction-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24pt;
+    height: 24pt;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 10pt;
+  }
+
+  /* Tags */
+  .recipe-tags {
+    margin-top: 16pt;
+    font-size: 9pt;
+    color: #666;
+  }
+
+  .recipe-tag {
+    display: inline-block;
+    margin-right: 8pt;
+    padding: 2pt 6pt;
+    border: 1px solid #000;
+    border-radius: 4pt;
+  }
+
+  /* Author Info */
+  .author-info {
+    margin-top: 24pt;
+    padding-top: 16pt;
+    border-top: 2px solid #000;
+    font-size: 10pt;
+  }
+
+  /* Links - show URL */
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Remove link URLs for navigation */
+  nav a[href]::after,
+  .breadcrumbs a[href]::after {
+    content: '';
+  }
+
+  /* Page margins */
+  @page {
+    margin: 2cm;
+    size: A4 portrait;
+  }
+
+  /* Print footer with page number */
+  @page {
+    @bottom-center {
+      content: counter(page) ' / ' counter(pages);
+      font-size: 9pt;
+      color: #666;
+    }
+  }
+
+  /* Optimize for black & white printing */
+  * {
+    color: #000 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Keep some visual hierarchy */
+  .card,
+  .recipe-section {
+    border: 1px solid #000;
+    padding: 12pt;
+    margin-bottom: 16pt;
+  }
+
+  /* Ensure checkboxes are visible */
+  input[type='checkbox'] {
+    display: inline-block !important;
+    width: 12pt !important;
+    height: 12pt !important;
+    border: 1px solid #000 !important;
+    margin-right: 6pt !important;
+  }
+}

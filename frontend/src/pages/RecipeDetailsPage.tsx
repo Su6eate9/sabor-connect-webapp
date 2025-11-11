@@ -254,7 +254,7 @@ export const RecipeDetailsPage = () => {
         </div>
 
         {/* Hero Image */}
-        <div className="relative h-96 bg-gradient-to-b from-gray-900 to-transparent">
+        <div className="relative h-96 bg-gradient-to-b from-gray-900 to-transparent recipe-image">
           {recipe.coverImageUrl ? (
             <>
               <img
@@ -262,10 +262,10 @@ export const RecipeDetailsPage = () => {
                 alt={recipe.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent no-print" />
             </>
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary to-secondary" />
+            <div className="w-full h-full bg-gradient-to-br from-primary to-secondary no-print" />
           )}
         </div>
 
@@ -275,20 +275,20 @@ export const RecipeDetailsPage = () => {
             <div className="card p-8 mb-8">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h1 className="text-4xl font-display font-bold mb-4 text-gray-900 dark:text-white">
+                  <h1 className="recipe-title text-4xl font-display font-bold mb-4 text-gray-900 dark:text-white">
                     {recipe.title}
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">
+                  <p className="recipe-description text-gray-600 dark:text-gray-300 text-lg mb-4">
                     {recipe.description}
                   </p>
 
                   {/* Tags */}
                   {recipe.tags && recipe.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="recipe-tags flex flex-wrap gap-2 mb-4">
                       {recipe.tags.map((tag) => (
                         <span
                           key={tag.id}
-                          className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full"
+                          className="recipe-tag px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full"
                         >
                           {tag.name}
                         </span>
@@ -297,20 +297,30 @@ export const RecipeDetailsPage = () => {
                   )}
                 </div>
 
-                {isAuthor && (
-                  <div className="flex gap-2">
-                    <Link to={`/recipe/edit/${recipe.slug}`}>
-                      <Button variant="outline">Editar</Button>
-                    </Link>
-                    <Button variant="danger" onClick={handleDeleteRecipe}>
-                      Excluir
-                    </Button>
-                  </div>
-                )}
+                <div className="no-print">
+                  {isAuthor && (
+                    <div className="flex gap-2">
+                      <Link to={`/recipe/edit/${recipe.slug}`}>
+                        <Button variant="outline">Editar</Button>
+                      </Link>
+                      <Button variant="danger" onClick={handleDeleteRecipe}>
+                        Excluir
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 mb-6">
+              <div className="flex flex-wrap items-center gap-3 mb-6 no-print">
+                <Button onClick={() => setShowCookingMode(true)} variant="primary">
+                  👨‍🍳 Modo Cozinhando
+                </Button>
+
+                <Button onClick={() => window.print()} variant="outline" className="no-print">
+                  🖨️ Imprimir Receita
+                </Button>
+
                 <Button
                   onClick={handleLike}
                   variant={recipe.isLiked ? 'primary' : 'outline'}
@@ -338,8 +348,8 @@ export const RecipeDetailsPage = () => {
               </div>
 
               {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-6 py-4 border-t border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2">
+              <div className="recipe-info flex flex-wrap items-center gap-6 py-4 border-t border-b border-gray-200 dark:border-gray-700">
+                <div className="recipe-info-item flex items-center gap-2">
                   <span className="text-2xl">⏱️</span>
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Tempo Total</p>
@@ -349,7 +359,7 @@ export const RecipeDetailsPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="recipe-info-item flex items-center gap-2">
                   <span className="text-2xl">🍽️</span>
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Porções</p>
@@ -357,7 +367,7 @@ export const RecipeDetailsPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="recipe-info-item flex items-center gap-2">
                   <span className="text-2xl">📊</span>
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Dificuldade</p>
@@ -367,7 +377,7 @@ export const RecipeDetailsPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="recipe-info-item flex items-center gap-2 no-print">
                   <span className="text-2xl">👁️</span>
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Visualizações</p>
@@ -436,15 +446,15 @@ export const RecipeDetailsPage = () => {
             </div>
 
             {/* Ingredients */}
-            <div className="card p-8 mb-8">
+            <div className="ingredients-section card p-8 mb-8">
               <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
                 Ingredientes
               </h2>
-              <div className="space-y-3">
+              <div className="ingredients-list space-y-3">
                 {recipe.ingredients.map((ingredient, index) => (
                   <label
                     key={ingredient.id}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                    className="ingredient-item flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                   >
                     <input
                       type="checkbox"
@@ -470,14 +480,15 @@ export const RecipeDetailsPage = () => {
             </div>
 
             {/* Instructions */}
-            <div className="card p-8 mb-8">
+            {/* Instructions */}
+            <div className="instructions-section card p-8 mb-8">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white">
                   Modo de Preparo
                 </h2>
                 <Button
                   onClick={() => setShowCookingMode(true)}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 no-print"
                 >
                   <span>👨‍🍳</span>
                   <span>Modo Cozinhando</span>
@@ -485,8 +496,8 @@ export const RecipeDetailsPage = () => {
               </div>
               <div className="space-y-6">
                 {recipe.instructions.map((instruction, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary dark:bg-primary-600 text-white flex items-center justify-center font-bold">
+                  <div key={index} className="instruction-step flex gap-4">
+                    <div className="instruction-number flex-shrink-0 w-10 h-10 rounded-full bg-primary dark:bg-primary-600 text-white flex items-center justify-center font-bold">
                       {index + 1}
                     </div>
                     <div className="flex-1 pt-2">
@@ -500,7 +511,7 @@ export const RecipeDetailsPage = () => {
             </div>
 
             {/* Comments */}
-            <div className="card p-8">
+            <div className="comments-section card p-8 no-print">
               <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
                 Comentários ({recipe._count?.comments || 0})
               </h2>
