@@ -1,0 +1,55 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#ff6b35',
+          50: '#fff5f2',
+          100: '#ffe8e0',
+          200: '#ffd4c7',
+          300: '#ffb8a1',
+          400: '#ff8d6a',
+          500: '#ff6b35',
+          600: '#f04f1a',
+          700: '#c93d10',
+          800: '#a63411',
+          900: '#892f15',
+        },
+        secondary: {
+          DEFAULT: '#f7931e',
+          50: '#fff8ed',
+          100: '#ffefd6',
+          200: '#ffdcac',
+          300: '#ffc478',
+          400: '#ffa342',
+          500: '#f7931e',
+          600: '#e87609',
+          700: '#c05709',
+          800: '#984310',
+          900: '#7b3910',
+        },
+        accent: {
+          DEFAULT: '#004e89',
+          50: '#f0f8ff',
+          100: '#e0f0fe',
+          200: '#b9e0fd',
+          300: '#7ccafc',
+          400: '#36b0f8',
+          500: '#0c95e9',
+          600: '#0178c7',
+          700: '#015fa1',
+          800: '#065185',
+          900: '#0b446d',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Poppins', 'system-ui', 'sans-serif'],
+      },
+    },
+  },
+  plugins: [],
+};
