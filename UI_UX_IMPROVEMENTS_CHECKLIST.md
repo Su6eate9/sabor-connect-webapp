@@ -1,7 +1,7 @@
 # 🎨 Checklist de Melhorias UI/UX - Sabor Connect
 
-**Última atualização:** 10/11/2025
-**Status Geral:** 4/29 completas (14%)
+**Última atualização:** 11/11/2025
+**Status Geral:** 12/29 completas (41%)
 
 ---
 
@@ -13,18 +13,18 @@
 - [x] Criar componente `SkeletonRecipeGrid.tsx`
 - [x] Implementar skeleton em `RecipesPage.tsx`
 - [x] Implementar skeleton em `DashboardPage.tsx`
-- [ ] Implementar skeleton em `RecipeDetailsPage.tsx`
+- [x] Implementar skeleton em `RecipeDetailsPage.tsx` (SkeletonRecipeDetails)
 - [x] Adicionar animação de pulse
-      **Status:** ✅ 80% Completo
+      **Status:** ✅ 100% Completo
 
-### 2. Feedback Visual para Ações do Usuário 🔄
+### 2. Feedback Visual para Ações do Usuário ✅
 
 - [x] Adicionar animações de transição nos cards
-- [ ] Implementar indicador de progresso no upload de imagens
-- [ ] Adicionar loading states em todos os botões
-- [x] Criar animação de "coração" ao curtir (CSS pronto)
+- [x] Implementar indicador de progresso no upload de imagens (ImageUploadProgress)
+- [x] Adicionar loading states em todos os botões (like, favorite, mutations)
+- [x] Criar animação de "coração" ao curtir (CSS pronto + implementado)
 - [x] Adicionar feedback tátil (scale) nos botões
-      **Status:** 🔄 60% Em progresso
+      **Status:** ✅ 100% Completo
 
 ### 3. Responsividade do Menu Mobile ✅
 
@@ -41,11 +41,11 @@
 - [x] Criar hooks de validação customizados (`useFormValidation.ts`)
 - [ ] Adicionar validação inline no LoginPage
 - [ ] Adicionar validação inline no RegisterPage
-- [ ] Adicionar validação inline no CreateRecipePage
-- [ ] Adicionar validação inline no EditRecipePage
+- [x] Adicionar validação inline no CreateRecipePage
+- [x] Adicionar validação inline no EditRecipePage
 - [x] Criar componente `FieldError.tsx`
 - [x] Adicionar mensagens de erro amigáveis
-      **Status:** ✅ 50% Completo (Base criada)
+      **Status:** ✅ 70% Completo (Principais formulários validados)
 
 ---
 
@@ -65,47 +65,47 @@
 - [x] Criar componente `Pagination.tsx`
 - [x] Implementar lógica de páginas visíveis
 - [x] Adicionar botões "Primeira" e "Última"
-- [ ] Integrar em RecipesPage
+- [x] Integrar em RecipesPage
 - [x] Adicionar informações "X-Y de Z resultados"
-      **Status:** ✅ 80% Completo
+      **Status:** ✅ 100% Completo
 
-### 7. Preview de Receita Antes de Publicar ⏳
+### 7. Preview de Receita Antes de Publicar ✅
 
-- [ ] Criar componente `RecipePreview.tsx`
-- [ ] Adicionar botão "Visualizar" no CreateRecipePage
-- [ ] Adicionar botão "Visualizar" no EditRecipePage
-- [ ] Implementar modal de preview
-- [ ] Adicionar toggle "Modo Edição/Visualização"
-      **Status:** ⏳ Pendente
+- [x] Criar componente `RecipePreview.tsx`
+- [x] Adicionar botão "Visualizar" no CreateRecipePage
+- [x] Adicionar botão "Visualizar" no EditRecipePage
+- [x] Implementar modal de preview
+- [x] Adicionar toggle "Modo Edição/Visualização"
+      **Status:** ✅ 100% Completo
 
-### 8. Filtros Avançados na Página de Receitas ⏳
+### 8. Filtros Avançados na Página de Receitas ✅
 
-- [ ] Criar componente `AdvancedFilters.tsx`
-- [ ] Adicionar filtro de tempo de preparo
-- [ ] Adicionar filtro de porções
-- [ ] Adicionar filtro por tags
-- [ ] Adicionar ordenação (recentes, populares, etc)
-- [ ] Criar drawer/panel lateral de filtros
-- [ ] Adicionar badges de filtros ativos
-      **Status:** ⏳ Pendente
+- [x] Criar componente `AdvancedFilters.tsx`
+- [x] Adicionar filtro de tempo de preparo
+- [x] Adicionar filtro de porções
+- [x] Adicionar filtro por tags
+- [x] Adicionar ordenação (recentes, populares, etc)
+- [x] Criar drawer/panel lateral de filtros
+- [x] Adicionar badges de filtros ativos
+      **Status:** ✅ 100% Completo
 
 ### 9. Confirmação para Ações Destrutivas ✅
 
 - [x] Criar componente `ConfirmDialog.tsx`
-- [ ] Implementar em delete de receita
-- [ ] Implementar em delete de comentário
-- [ ] Implementar em logout
+- [x] Implementar em delete de receita
+- [x] Implementar em delete de comentário
+- [x] Implementar em logout (Header + MobileMenu)
 - [x] Adicionar ícones e textos explicativos
-      **Status:** ✅ 50% Completo (Componente criado)
+      **Status:** ✅ 100% Completo
 
 ### 10. Indicador de Força da Senha ✅
 
 - [x] Criar componente `PasswordStrength.tsx`
 - [x] Implementar lógica de validação
 - [x] Adicionar barra de progresso visual
-- [ ] Integrar no RegisterPage
+- [x] Integrar no RegisterPage
 - [x] Adicionar dicas de senha forte
-      **Status:** ✅ 80% Completo
+      **Status:** ✅ 100% Completo
 
 ---
 
@@ -123,19 +123,22 @@
 ### 12. Empty States Ilustrados ✅
 
 - [x] Criar componente `EmptyState.tsx`
-- [ ] Adicionar em "Sem receitas"
-- [ ] Adicionar em "Sem favoritos"
-- [ ] Adicionar em "Sem comentários"
-- [ ] Adicionar SVGs ilustrativos
-      **Status:** ✅ 50% Completo (Componente criado)
+- [x] Adicionar em "Sem receitas" (RecipesPage)
+- [x] Adicionar em "Sem favoritos" (DashboardPage)
+- [x] Adicionar em "Sem comentários" (RecipeDetailsPage)
+- [x] Adicionar em "Sem receitas publicadas" (ProfilePage)
+- [ ] Adicionar SVGs ilustrativos personalizados
+      **Status:** ✅ 90% Completo
 
 ### 13. Breadcrumbs para Navegação ✅
 
 - [x] Criar componente `Breadcrumbs.tsx`
-- [ ] Implementar em RecipeDetailsPage
-- [ ] Implementar em ProfilePage
+- [x] Implementar em RecipeDetailsPage
+- [x] Implementar em ProfilePage
+- [x] Implementar em CreateRecipePage
+- [x] Implementar em EditRecipePage
 - [ ] Adicionar schema markup (SEO)
-      **Status:** ✅ 50% Completo (Componente criado)
+      **Status:** ✅ 90% Completo
 
 ### 14. Modo de Leitura para Receitas ⏳
 
@@ -154,16 +157,18 @@
 - [x] Implementar botão Twitter/X
 - [x] Implementar botão WhatsApp
 - [x] Implementar botão "Copiar Link"
-- [ ] Adicionar meta tags Open Graph
-      **Status:** ✅ 90% Completo
+- [x] Adicionar meta tags Open Graph (useOpenGraph hook)
+      **Status:** ✅ 100% Completo
 
-### 16. Impressão Otimizada ⏳
+### 16. Impressão Otimizada ✅
 
-- [ ] Criar arquivo `print.css`
-- [ ] Adicionar botão "Imprimir Receita"
-- [ ] Otimizar layout para impressão
-- [ ] Esconder elementos desnecessários
-      **Status:** ⏳ Pendente
+- [x] Criar arquivo `print.css`
+- [x] Adicionar botão "Imprimir Receita"
+- [x] Otimizar layout para impressão
+- [x] Esconder elementos desnecessários
+- [x] Adicionar classes semânticas no RecipeDetailsPage
+- [x] Otimizar para impressão P&B
+      **Status:** ✅ 100% Completo
 
 ---
 
@@ -177,14 +182,15 @@
 - [ ] Testar com ferramentas de acessibilidade
       **Status:** 🔄 Em progresso
 
-### 18. Labels e ARIA ⏳
+### 18. Labels e ARIA 🔄
 
-- [ ] Adicionar aria-labels em todos os ícones
-- [ ] Adicionar aria-labels em botões sem texto
+- [x] Adicionar aria-labels em todos os ícones de compartilhamento
+- [x] Adicionar aria-labels em botões sem texto (Header)
+- [x] Adicionar aria-labels na Paginação
 - [ ] Melhorar navegação por teclado (Tab order)
 - [ ] Adicionar focus visible em elementos interativos
 - [ ] Testar com leitor de tela
-      **Status:** 🔄 Em progresso
+      **Status:** 🔄 60% Em progresso
 
 ### 19. Textos Alternativos ⏳
 
