@@ -11,6 +11,7 @@ import { Alert } from '@/components/Alert';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ShareButtons } from '@/components/ShareButtons';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { CookingMode } from '@/components/CookingMode';
 import api from '@/lib/api';
 import { Recipe, Comment, ApiResponse } from '@/types';
 import { ROUTES, DIFFICULTY_LABELS } from '@/lib/constants';
@@ -27,6 +28,7 @@ export const RecipeDetailsPage = () => {
   const [error, setError] = useState('');
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showCookingMode, setShowCookingMode] = useState(false);
 
   // Fetch recipe
   const { data: recipeData, isLoading: loadingRecipe } = useQuery({
@@ -436,9 +438,18 @@ export const RecipeDetailsPage = () => {
 
             {/* Instructions */}
             <div className="card p-8 mb-8">
-              <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
-                Modo de Preparo
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white">
+                  Modo de Preparo
+                </h2>
+                <Button
+                  onClick={() => setShowCookingMode(true)}
+                  className="flex items-center space-x-2"
+                >
+                  <span>👨‍🍳</span>
+                  <span>Modo Cozinhando</span>
+                </Button>
+              </div>
               <div className="space-y-6">
                 {recipe.instructions.map((instruction, index) => (
                   <div key={index} className="flex gap-4">
@@ -565,6 +576,14 @@ export const RecipeDetailsPage = () => {
         cancelText="Cancelar"
         type="danger"
         loading={deleteRecipeMutation.isPending}
+      />
+
+      {/* Cooking Mode */}
+      <CookingMode
+        isOpen={showCookingMode}
+        onClose={() => setShowCookingMode(false)}
+        instructions={recipe.instructions}
+        recipeTitle={recipe.title}
       />
     </Layout>
   );
