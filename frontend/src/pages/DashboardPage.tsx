@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
 import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
+import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/Button';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
@@ -115,18 +116,16 @@ export const DashboardPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="card p-12 text-center">
-                <div className="text-6xl mb-4">📝</div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-                  Nenhuma receita ainda
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Comece compartilhando sua primeira receita com a comunidade!
-                </p>
-                <Link to={ROUTES.RECIPE_CREATE}>
-                  <Button>Criar Primeira Receita</Button>
-                </Link>
-              </div>
+              <EmptyState
+                icon="📝"
+                title="Nenhuma receita ainda"
+                description="Comece compartilhando sua primeira receita com a comunidade!"
+                action={
+                  <Link to={ROUTES.RECIPE_CREATE}>
+                    <Button>Criar Primeira Receita</Button>
+                  </Link>
+                }
+              />
             )}
           </section>
 
@@ -150,18 +149,16 @@ export const DashboardPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="card p-12 text-center">
-                <div className="text-6xl mb-4">❤️</div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-                  Nenhum favorito ainda
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Explore receitas e salve suas favoritas para acessar rapidamente!
-                </p>
-                <Link to={ROUTES.RECIPES}>
-                  <Button>Explorar Receitas</Button>
-                </Link>
-              </div>
+              <EmptyState
+                icon="❤️"
+                title="Nenhum favorito ainda"
+                description="Explore receitas e salve suas favoritas para acessar rapidamente!"
+                action={
+                  <Link to={ROUTES.RECIPES}>
+                    <Button>Explorar Receitas</Button>
+                  </Link>
+                }
+              />
             )}
           </section>
         </div>

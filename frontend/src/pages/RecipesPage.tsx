@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
 import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
+import { Pagination } from '@/components/Pagination';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
 
@@ -93,25 +94,13 @@ export const RecipesPage = () => {
               </div>
 
               {data.meta && data.meta.totalPages > 1 && (
-                <div className="flex justify-center space-x-2">
-                  <button
-                    onClick={() => handlePageChange(page - 1)}
-                    disabled={page === 1}
-                    className="btn-outline disabled:opacity-50"
-                  >
-                    Anterior
-                  </button>
-                  <span className="py-2 px-4">
-                    Página {page} de {data.meta.totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(page + 1)}
-                    disabled={page === data.meta.totalPages}
-                    className="btn-outline disabled:opacity-50"
-                  >
-                    Próxima
-                  </button>
-                </div>
+                <Pagination
+                  currentPage={page}
+                  totalPages={data.meta.totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={data.meta.total}
+                  itemsPerPage={data.meta.limit}
+                />
               )}
             </>
           )}

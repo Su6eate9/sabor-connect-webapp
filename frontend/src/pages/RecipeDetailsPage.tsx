@@ -8,6 +8,9 @@ import { LoadingPage } from '@/components/LoadingSpinner';
 import { Button } from '@/components/Button';
 import { Textarea } from '@/components/Textarea';
 import { Alert } from '@/components/Alert';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { ShareButtons } from '@/components/ShareButtons';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import api from '@/lib/api';
 import { Recipe, Comment, ApiResponse } from '@/types';
 import { ROUTES, DIFFICULTY_LABELS } from '@/lib/constants';
@@ -23,6 +26,7 @@ export const RecipeDetailsPage = () => {
   const [commentContent, setCommentContent] = useState('');
   const [error, setError] = useState('');
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Fetch recipe
   const { data: recipeData, isLoading: loadingRecipe } = useQuery({
@@ -166,9 +170,12 @@ export const RecipeDetailsPage = () => {
   };
 
   const handleDeleteRecipe = () => {
-    if (window.confirm('Tem certeza que deseja excluir esta receita?')) {
-      deleteRecipeMutation.mutate();
-    }
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    deleteRecipeMutation.mutate();
+    setShowDeleteDialog(false);
   };
 
   const toggleIngredient = (index: number) => {
@@ -203,6 +210,17 @@ export const RecipeDetailsPage = () => {
   return (
     <Layout>
       <div className="bg-gray-50 dark:bg-gray-900">
+        {/* Breadcrumbs */}
+        <div className="container-custom pt-4">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', href: ROUTES.HOME },
+              { label: 'Receitas', href: ROUTES.RECIPES },
+              { label: recipe.title },
+            ]}
+          />
+        </div>
+
         {/* Hero Image */}
         <div className="relative h-96 bg-gradient-to-b from-gray-900 to-transparent">
           {recipe.coverImageUrl ? (
@@ -257,6 +275,31 @@ export const RecipeDetailsPage = () => {
                     </Button>
                   </div>
                 )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <Button
+                  onClick={handleLike}
+                  variant={recipe.isLiked ? 'primary' : 'outline'}
+                  className={recipe.isLiked ? 'animate-pulse-heart' : ''}
+                >
+                  {recipe.isLiked ? '❤️' : '🤍'} {recipe._count?.likes || 0} Curtidas
+                </Button>
+
+                <Button
+                  onClick={handleFavorite}
+                  variant={recipe.isFavorited ? 'primary' : 'outline'}
+                >
+                  {recipe.isFavorited ? '⭐' : '☆'}{' '}
+                  {recipe.isFavorited ? 'Favoritado' : 'Favoritar'}
+                </Button>
+
+                <ShareButtons
+                  url={window.location.href}
+                  title={recipe.title}
+                  description={recipe.description}
+                />
               </div>
 
               {/* Meta Info */}
@@ -510,6 +553,19 @@ export const RecipeDetailsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+        title="Excluir Receita"
+        message="Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita."
+        confirmText="Sim, excluir"
+        cancelText="Cancelar"
+        type="danger"
+        loading={deleteRecipeMutation.isPending}
+      />
     </Layout>
   );
 };

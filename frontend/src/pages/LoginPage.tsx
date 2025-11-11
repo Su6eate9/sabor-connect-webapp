@@ -2,6 +2,8 @@ import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/Layout';
+import { FieldError } from '@/components/FieldError';
+import { useFormValidation, validationRules } from '@/hooks/useFormValidation';
 import { ROUTES } from '@/lib/constants';
 
 export const LoginPage = () => {
@@ -12,9 +14,20 @@ export const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const { errors, handleBlur, handleChange, validateAll } = useFormValidation({
+    email: [validationRules.required('E-mail é obrigatório'), validationRules.email()],
+    password: [validationRules.required('Senha é obrigatória'), validationRules.minLength(6)],
+  });
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate all fields
+    if (!validateAll({ email, password })) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -56,11 +69,15 @@ export const LoginPage = () => {
                 <input
                   id="email"
                   type="email"
-                  required
-                  className="input"
+                  className={`input ${errors.email ? 'border-red-500 dark:border-red-400' : ''}`}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    handleChange('email', e.target.value);
+                  }}
+                  onBlur={() => handleBlur('email', email)}
                 />
+                <FieldError error={errors.email} />
               </div>
 
               <div>
@@ -73,11 +90,15 @@ export const LoginPage = () => {
                 <input
                   id="password"
                   type="password"
-                  required
-                  className="input"
+                  className={`input ${errors.password ? 'border-red-500 dark:border-red-400' : ''}`}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    handleChange('password', e.target.value);
+                  }}
+                  onBlur={() => handleBlur('password', password)}
                 />
+                <FieldError error={errors.password} />
               </div>
 
               <button type="submit" disabled={loading} className="btn-primary w-full">
