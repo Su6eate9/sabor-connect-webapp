@@ -20,11 +20,7 @@ export const EmptyState = ({
       <div className="max-w-md mx-auto">
         {/* Icon */}
         <div className="mb-4">
-          {typeof icon === 'string' ? (
-            <div className="text-6xl animate-bounce">{icon}</div>
-          ) : (
-            icon
-          )}
+          {typeof icon === 'string' ? <div className="text-6xl animate-bounce">{icon}</div> : icon}
         </div>
 
         {/* Title */}

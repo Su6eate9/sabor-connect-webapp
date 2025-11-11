@@ -28,7 +28,10 @@ export const RecipeCard = ({ recipe }: RecipeCardProps) => {
   const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
 
   return (
-    <Link to={`/recipes/${recipe.slug}`} className="card group hover:shadow-2xl transition-all duration-300">
+    <Link
+      to={`/recipes/${recipe.slug}`}
+      className="card group hover:shadow-2xl transition-all duration-300"
+    >
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-orange-400 via-rose-400 to-pink-500 dark:from-orange-600 dark:via-rose-600 dark:to-pink-700">
         <img
           src={imageUrl}
@@ -70,7 +73,9 @@ export const RecipeCard = ({ recipe }: RecipeCardProps) => {
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-300 mb-4">
           <span className="flex items-center space-x-1">
             <span>👥</span>
-            <span>{recipe.portions} {recipe.portions === 1 ? 'porção' : 'porções'}</span>
+            <span>
+              {recipe.portions} {recipe.portions === 1 ? 'porção' : 'porções'}
+            </span>
           </span>
           <span className="flex items-center space-x-1">
             <span>💬</span>

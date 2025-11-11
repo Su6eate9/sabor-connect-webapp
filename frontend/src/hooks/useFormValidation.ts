@@ -113,7 +113,11 @@ export const validationRules = {
     message: message || `Valor máximo: ${max}`,
   }),
 
-  match: (otherField: string, otherValue: any, message = 'Os campos não coincidem'): ValidationRule => ({
+  match: (
+    otherField: string,
+    otherValue: any,
+    message = 'Os campos não coincidem'
+  ): ValidationRule => ({
     validate: (value) => value === otherValue,
     message,
   }),

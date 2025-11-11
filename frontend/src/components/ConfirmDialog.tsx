@@ -74,7 +74,12 @@ export const ConfirmDialog = ({
 
           {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-center">
-            <Button variant="outline" onClick={onClose} disabled={loading} className="sm:min-w-[120px]">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+              className="sm:min-w-[120px]"
+            >
               {cancelText}
             </Button>
             <Button
