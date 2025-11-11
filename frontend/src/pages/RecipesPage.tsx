@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
+import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
 
@@ -79,7 +80,7 @@ export const RecipesPage = () => {
             </button>
           </div>
 
-          {isLoading && <div className="text-center py-12">Carregando receitas...</div>}
+          {isLoading && <SkeletonRecipeGrid count={6} />}
 
           {error && <div className="text-center py-12 text-red-600">Erro ao carregar receitas</div>}
 

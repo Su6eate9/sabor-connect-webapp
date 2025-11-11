@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
 import { Button } from '@/components/Button';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
@@ -107,7 +107,7 @@ export const DashboardPage = () => {
             </div>
 
             {loadingRecipes ? (
-              <LoadingSpinner />
+              <SkeletonRecipeGrid count={3} />
             ) : myRecipes?.data && myRecipes.data.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myRecipes.data.map((recipe) => (
@@ -142,7 +142,7 @@ export const DashboardPage = () => {
             </div>
 
             {loadingFavorites ? (
-              <LoadingSpinner />
+              <SkeletonRecipeGrid count={3} />
             ) : favorites?.data && favorites.data.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {favorites.data.map((recipe) => (

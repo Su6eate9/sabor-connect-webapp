@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { MobileMenu } from '@/components/MobileMenu';
 import { ROUTES } from '@/lib/constants';
 
 export const Header = () => {
@@ -42,44 +43,51 @@ export const Header = () => {
 
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            {isAuthenticated ? (
-              <>
-                <Link to={ROUTES.RECIPE_CREATE} className="btn-primary">
-                  Nova Receita
-                </Link>
-                <Link
-                  to={`/profile/${user?.id}`}
-                  className="flex items-center space-x-2 hover:opacity-80 transition"
-                >
-                  {user?.avatarUrl ? (
-                    <img
-                      src={user.avatarUrl}
-                      alt={user.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
-                      {user?.name[0].toUpperCase()}
-                    </div>
-                  )}
-                </Link>
-                <button
-                  onClick={logout}
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition"
-                >
-                  Sair
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to={ROUTES.LOGIN} className="btn-outline">
-                  Entrar
-                </Link>
-                <Link to={ROUTES.REGISTER} className="btn-primary">
-                  Cadastrar
-                </Link>
-              </>
-            )}
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
+              {isAuthenticated ? (
+                <>
+                  <Link to={ROUTES.RECIPE_CREATE} className="btn-primary">
+                    Nova Receita
+                  </Link>
+                  <Link
+                    to={`/profile/${user?.id}`}
+                    className="flex items-center space-x-2 hover:opacity-80 transition"
+                  >
+                    {user?.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                        {user?.name[0].toUpperCase()}
+                      </div>
+                    )}
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition"
+                  >
+                    Sair
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to={ROUTES.LOGIN} className="btn-outline">
+                    Entrar
+                  </Link>
+                  <Link to={ROUTES.REGISTER} className="btn-primary">
+                    Cadastrar
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Menu */}
+            <MobileMenu />
           </div>
         </div>
       </nav>
