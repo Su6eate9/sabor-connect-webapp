@@ -91,6 +91,7 @@ export const ShareButtons = ({ url, title, description, className = '' }: ShareB
                 <button
                   onClick={() => handleShare('Facebook', shareLinks.facebook)}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                  aria-label="Compartilhar no Facebook"
                 >
                   <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -104,6 +105,7 @@ export const ShareButtons = ({ url, title, description, className = '' }: ShareB
                 <button
                   onClick={() => handleShare('Twitter', shareLinks.twitter)}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                  aria-label="Compartilhar no X (Twitter)"
                 >
                   <div className="w-10 h-10 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -117,6 +119,7 @@ export const ShareButtons = ({ url, title, description, className = '' }: ShareB
                 <button
                   onClick={() => handleShare('WhatsApp', shareLinks.whatsapp)}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                  aria-label="Compartilhar no WhatsApp"
                 >
                   <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -127,9 +130,11 @@ export const ShareButtons = ({ url, title, description, className = '' }: ShareB
                 </button>
 
                 {/* Telegram */}
+                {/* Telegram */}
                 <button
                   onClick={() => handleShare('Telegram', shareLinks.telegram)}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                  aria-label="Compartilhar no Telegram"
                 >
                   <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -143,6 +148,7 @@ export const ShareButtons = ({ url, title, description, className = '' }: ShareB
                 <button
                   onClick={handleCopyLink}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left"
+                  aria-label="Copiar link"
                 >
                   <div className="w-10 h-10 rounded-full bg-gray-500 dark:bg-gray-600 flex items-center justify-center text-white">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

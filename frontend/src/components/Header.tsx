@@ -95,6 +95,7 @@ export const Header = () => {
                   <Link
                     to={`/profile/${user?.id}`}
                     className="flex items-center space-x-2 hover:opacity-80 transition"
+                    aria-label="Ir para meu perfil"
                   >
                     {user?.avatarUrl ? (
                       <img
@@ -111,6 +112,7 @@ export const Header = () => {
                   <button
                     onClick={() => setShowLogoutDialog(true)}
                     className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition"
+                    aria-label="Sair da conta"
                   >
                     Sair
                   </button>
