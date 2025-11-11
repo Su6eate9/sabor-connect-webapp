@@ -11,6 +11,7 @@ import { LoadingPage } from '@/components/LoadingSpinner';
 import { FieldError } from '@/components/FieldError';
 import { RecipePreview } from '@/components/RecipePreview';
 import { ImageUploadProgress } from '@/components/ImageUploadProgress';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { useFormValidation, validationRules as vr } from '@/hooks/useFormValidation';
 import api from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
@@ -263,6 +264,15 @@ export const EditRecipePage = () => {
     <Layout>
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen py-12">
         <div className="container-custom max-w-4xl">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', href: ROUTES.HOME },
+              { label: 'Dashboard', href: ROUTES.DASHBOARD },
+              { label: 'Editar Receita' },
+            ]}
+            className="mb-6"
+          />
+
           <h1 className="text-4xl font-display font-bold mb-8 text-gray-900 dark:text-white">
             Editar Receita
           </h1>

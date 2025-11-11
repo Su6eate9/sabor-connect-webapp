@@ -5,6 +5,7 @@ import { RecipeCard } from '@/components/RecipeCard';
 import { LoadingPage } from '@/components/LoadingSpinner';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { User, Recipe, ApiResponse } from '@/types';
@@ -59,6 +60,16 @@ export const ProfilePage = () => {
   return (
     <Layout>
       <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+        {/* Breadcrumbs */}
+        <div className="container-custom pt-4">
+          <Breadcrumbs
+            items={[
+              { label: 'Home', href: ROUTES.HOME },
+              { label: isOwnProfile ? 'Meu Perfil' : user.name },
+            ]}
+          />
+        </div>
+
         {/* Profile Header */}
         <div className="bg-gradient-to-r from-primary to-secondary dark:from-primary-600 dark:to-secondary-600 py-12 mb-8">
           <div className="container-custom">
