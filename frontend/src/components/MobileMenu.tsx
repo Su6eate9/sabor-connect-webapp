@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ROUTES } from '@/lib/constants';
 
 export const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -150,7 +152,7 @@ export const MobileMenu = () => {
                 </div>
                 <button
                   onClick={() => {
-                    logout();
+                    setShowLogoutDialog(true);
                     closeMenu();
                   }}
                   className="w-full px-4 py-2 text-left rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -179,6 +181,21 @@ export const MobileMenu = () => {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={() => {
+          logout();
+          setShowLogoutDialog(false);
+        }}
+        title="Sair da conta"
+        message="Tem certeza que deseja sair?"
+        confirmText="Sim, sair"
+        cancelText="Cancelar"
+        type="warning"
+      />
     </>
   );
 };

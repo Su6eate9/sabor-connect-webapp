@@ -28,6 +28,8 @@ export const RecipeDetailsPage = () => {
   const [error, setError] = useState('');
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeleteCommentDialog, setShowDeleteCommentDialog] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
   const [showCookingMode, setShowCookingMode] = useState(false);
 
   // Fetch recipe
@@ -124,8 +126,21 @@ export const RecipeDetailsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', recipe?.id] });
       showToast('Comentário excluído', 'info');
+      setShowDeleteCommentDialog(false);
+      setCommentToDelete(null);
     },
   });
+
+  const handleDeleteComment = (commentId: string) => {
+    setCommentToDelete(commentId);
+    setShowDeleteCommentDialog(true);
+  };
+
+  const confirmDeleteComment = () => {
+    if (commentToDelete) {
+      deleteCommentMutation.mutate(commentToDelete);
+    }
+  };
 
   // Delete recipe mutation
   const deleteRecipeMutation = useMutation({
@@ -543,7 +558,7 @@ export const RecipeDetailsPage = () => {
                           </div>
                           {user?.id === comment.authorId && (
                             <button
-                              onClick={() => deleteCommentMutation.mutate(comment.id)}
+                              onClick={() => handleDeleteComment(comment.id)}
                               className="text-sm text-red-600 hover:text-red-700"
                             >
                               Excluir
@@ -576,6 +591,19 @@ export const RecipeDetailsPage = () => {
         cancelText="Cancelar"
         type="danger"
         loading={deleteRecipeMutation.isPending}
+      />
+
+      {/* Delete Comment Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteCommentDialog}
+        onClose={() => setShowDeleteCommentDialog(false)}
+        onConfirm={confirmDeleteComment}
+        title="Excluir Comentário"
+        message="Tem certeza que deseja excluir este comentário? Esta ação não pode ser desfeita."
+        confirmText="Sim, excluir"
+        cancelText="Cancelar"
+        type="danger"
+        loading={deleteCommentMutation.isPending}
       />
 
       {/* Cooking Mode */}

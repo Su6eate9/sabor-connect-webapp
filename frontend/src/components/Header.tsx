@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { MobileMenu } from '@/components/MobileMenu';
 import { Autocomplete, AutocompleteItem } from '@/components/Autocomplete';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ROUTES } from '@/lib/constants';
 import api from '@/lib/api';
 import { ApiResponse, Recipe } from '@/types';
@@ -12,6 +13,7 @@ import { ApiResponse, Recipe } from '@/types';
 export const Header = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const { data: searchResults, isLoading: isSearching } = useQuery({
     queryKey: ['search-recipes', searchQuery],
@@ -107,7 +109,7 @@ export const Header = () => {
                     )}
                   </Link>
                   <button
-                    onClick={logout}
+                    onClick={() => setShowLogoutDialog(true)}
                     className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary-400 transition"
                   >
                     Sair
@@ -130,6 +132,21 @@ export const Header = () => {
           </div>
         </div>
       </nav>
+
+      {/* Logout Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={() => {
+          logout();
+          setShowLogoutDialog(false);
+        }}
+        title="Sair da conta"
+        message="Tem certeza que deseja sair?"
+        confirmText="Sim, sair"
+        cancelText="Cancelar"
+        type="warning"
+      />
     </header>
   );
 };
