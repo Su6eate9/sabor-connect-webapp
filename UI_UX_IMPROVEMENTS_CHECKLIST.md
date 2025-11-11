@@ -1,7 +1,7 @@
 # 🎨 Checklist de Melhorias UI/UX - Sabor Connect
 
 **Última atualização:** 11/11/2025
-**Status Geral:** 15/29 completas (52%)
+**Status Geral:** 19/29 completas (66%)
 
 ---
 
@@ -137,18 +137,18 @@
 - [x] Implementar em ProfilePage
 - [x] Implementar em CreateRecipePage
 - [x] Implementar em EditRecipePage
-- [ ] Adicionar schema markup (SEO)
-      **Status:** ✅ 90% Completo
+- [x] Adicionar schema markup (SEO) - schema.org/BreadcrumbList
+      **Status:** ✅ 100% Completo
 
-### 14. Modo de Leitura para Receitas ⏳
+### 14. Modo de Leitura para Receitas ✅
 
-- [ ] Criar componente `CookingMode.tsx`
-- [ ] Implementar toggle "Modo Cozinhando"
-- [ ] Adicionar texto maior e espaçamento
-- [ ] Implementar checklist interativa de ingredientes
-- [ ] Adicionar navegação passo-a-passo
-- [ ] Adicionar timer integrado
-      **Status:** ⏳ Pendente
+- [x] Criar componente `CookingMode.tsx`
+- [x] Implementar toggle "Modo Cozinhando"
+- [x] Adicionar texto maior e espaçamento
+- [x] Implementar checklist interativa de ingredientes
+- [x] Adicionar navegação passo-a-passo
+- [x] Adicionar timer integrado (Timer.tsx com play/pause/reset)
+      **Status:** ✅ 100% Completo
 
 ### 15. Compartilhamento Social ✅
 
@@ -213,22 +213,26 @@
 - [ ] Criar página de offline
       **Status:** 🔄 Em progresso
 
-### 21. Busca por Voz ⏳
+### 21. Busca por Voz ✅
 
-- [ ] Criar componente `VoiceSearch.tsx`
-- [ ] Implementar Web Speech API
-- [ ] Adicionar botão de microfone na busca
-- [ ] Adicionar feedback visual de gravação
-      **Status:** 🔄 Em progresso
+- [x] Criar componente `VoiceSearch.tsx`
+- [x] Implementar Web Speech API (pt-BR)
+- [x] Adicionar botão de microfone na busca (Header + RecipesPage)
+- [x] Adicionar feedback visual de gravação (pulsante vermelho)
+- [x] Detectar suporte do navegador automaticamente
+- [x] Transcrição automática para campo de busca
+      **Status:** ✅ 100% Completo
 
-### 22. Salvamento Automático de Rascunhos ⏳
+### 22. Salvamento Automático de Rascunhos ✅
 
-- [ ] Implementar auto-save com debounce
-- [ ] Usar localStorage para rascunhos
-- [ ] Adicionar indicador "Salvo automaticamente"
-- [ ] Implementar recuperação de rascunho
-- [ ] Adicionar confirmação ao sair da página
-      **Status:** 🔄 Em progresso
+- [x] Implementar auto-save com debounce (2000ms)
+- [x] Usar localStorage para rascunhos
+- [x] Adicionar indicador "Salvamento automático ativo"
+- [x] Implementar recuperação de rascunho (com confirmação)
+- [x] Criar hook genérico `useAutoSave<T>`
+- [x] Limpar rascunho após criação bem-sucedida
+- [x] Skip first render para evitar overwrite
+      **Status:** ✅ 100% Completo
 
 ### 23. Tour Guiado para Novos Usuários ⏳
 
@@ -433,8 +437,59 @@
 ### 🔄 **Itens 90% Completos:**
 
 - EmptyState (falta SVGs personalizados)
-- Breadcrumbs (falta schema markup SEO)
 - Labels e ARIA (falta teste com leitor de tela)
+
+---
+
+## 📊 Resumo da Segunda Sessão (11/11/2025 - Continuação)
+
+### ✅ **3 Novos Commits Criados:**
+
+1. **feat: Adiciona Timer e checklist de ingredientes no Modo Cozinhando** (9e1a8ac)
+   - Componente Timer.tsx (~120 linhas) com play/pause/reset
+   - Checklist interativa de ingredientes no CookingMode
+   - Formato HH:MM:SS, contador de ingredientes (X/Y)
+   - Modo Cozinhando agora 100% completo
+
+2. **feat: Adiciona Schema Markup (SEO) nos Breadcrumbs** (993bb64)
+   - schema.org/BreadcrumbList em JSON-LD
+   - Melhora resultados de busca no Google
+   - Breadcrumbs agora 100% completo com SEO
+
+3. **feat: Adiciona Busca por Voz com Web Speech API** (7ec8063)
+   - Componente VoiceSearch.tsx
+   - Suporte a português (pt-BR)
+   - Integrado no Header e RecipesPage
+   - Feedback visual animado (pulsante vermelho)
+   - Detecção automática de suporte do navegador
+
+4. **feat: Adiciona Auto-save de Rascunhos em CreateRecipePage** (d1e2f7c)
+   - Hook genérico useAutoSave<T> (~50 linhas)
+   - Debounce de 2 segundos, localStorage
+   - Recuperação com confirmação
+   - Indicador visual: "Salvamento automático ativo"
+   - Limpeza automática após publicação
+
+### 📈 **Progresso Total:**
+
+- **Sessão Anterior:** 15/29 (52%)
+- **Agora:** 19/29 (66%)
+- **Incremento:** +4 itens completos (+14%)
+
+### 🎯 **Novos Itens 100% Completos:**
+
+16. ✅ Breadcrumbs com Schema Markup SEO
+17. ✅ Modo Cozinhando (Timer + Ingredientes)
+18. ✅ Busca por Voz (Web Speech API)
+19. ✅ Auto-save de Rascunhos
+
+### 🚀 **Destaques Técnicos:**
+
+- **Timer Component:** useRef + setInterval com cleanup
+- **Schema Markup:** JSON-LD dinâmico em <head>
+- **Voice Search:** Web Speech Recognition API (pt-BR)
+- **Auto-save:** Generic hook + localStorage + debounce
+- **Type Safety:** TypeScript completo em todos os novos componentes
 
 ---
 
