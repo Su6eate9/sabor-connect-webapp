@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: saborconnect-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: saborconnect
+      POSTGRES_PASSWORD: saborconnect_password
+      POSTGRES_DB: saborconnect
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U saborconnect']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: saborconnect-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://saborconnect:saborconnect_password@db:5432/saborconnect
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-in-production
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      NODE_ENV: development
+      PORT: 4000
+      UPLOAD_DIR: /app/uploads
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-saborconnect-uploads}
+      AWS_ENDPOINT_URL: ${AWS_ENDPOINT_URL:-}
+      CLOUDFLARE_ZONE_ID: ${CLOUDFLARE_ZONE_ID:-}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+      CDN_URL: ${CDN_URL:-}
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - backend_uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: saborconnect-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:4000/api
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm run dev
+
+  redis:
+    image: redis:7-alpine
+    container_name: saborconnect-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - default
+
+  adminer:
+    image: adminer:latest
+    container_name: saborconnect-adminer
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+
+volumes:
+  postgres_data:
+  backend_uploads:
+  redis_data:
