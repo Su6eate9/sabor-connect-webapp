@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
 import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
 import { EmptyState } from '@/components/EmptyState';
+import { StatCard } from '@/components/StatCard';
 import { Button } from '@/components/Button';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
@@ -57,43 +58,24 @@ export const DashboardPage = () => {
 
           {/* Stats */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Minhas Receitas</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {user?._count?.recipes || 0}
-                  </p>
-                </div>
-                <div className="text-4xl">📖</div>
-              </div>
-            </div>
-
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Favoritos</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {user?._count?.favorites || 0}
-                  </p>
-                </div>
-                <div className="text-4xl">❤️</div>
-              </div>
-            </div>
-
-            <div className="card p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
-                    Curtidas Recebidas
-                  </p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {user?._count?.likes || 0}
-                  </p>
-                </div>
-                <div className="text-4xl">👍</div>
-              </div>
-            </div>
+            <StatCard
+              label="Minhas Receitas"
+              value={user?._count?.recipes || 0}
+              icon="📖"
+              color="primary"
+            />
+            <StatCard
+              label="Favoritos"
+              value={user?._count?.favorites || 0}
+              icon="❤️"
+              color="danger"
+            />
+            <StatCard
+              label="Curtidas Recebidas"
+              value={user?._count?.likes || 0}
+              icon="👍"
+              color="success"
+            />
           </div>
 
           {/* Minhas Receitas */}
