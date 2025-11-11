@@ -660,6 +660,7 @@ export const RecipeDetailsPage = () => {
         onClose={() => setShowCookingMode(false)}
         instructions={recipe.instructions}
         recipeTitle={recipe.title}
+        ingredients={recipe.ingredients}
       />
     </Layout>
   );

@@ -1,16 +1,33 @@
 import { useState, useEffect } from 'react';
 import { Button } from './Button';
+import { Timer } from './Timer';
+
+interface Ingredient {
+  id: string;
+  name: string;
+  quantity: string;
+  unit: string;
+}
 
 interface CookingModeProps {
   isOpen: boolean;
   onClose: () => void;
   instructions: string[];
   recipeTitle: string;
+  ingredients?: Ingredient[];
 }
 
-export const CookingMode = ({ isOpen, onClose, instructions, recipeTitle }: CookingModeProps) => {
+export const CookingMode = ({
+  isOpen,
+  onClose,
+  instructions,
+  recipeTitle,
+  ingredients = [],
+}: CookingModeProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set());
+  const [showIngredients, setShowIngredients] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -132,6 +149,71 @@ export const CookingMode = ({ isOpen, onClose, instructions, recipeTitle }: Cook
 
       {/* Main Content */}
       <div className="flex flex-col h-[calc(100vh-140px)] max-w-6xl mx-auto">
+        {/* Timer - Fixed Position */}
+        <div className="absolute top-32 right-6 z-10">
+          <Timer />
+        </div>
+
+        {/* Ingredients Sidebar */}
+        {ingredients.length > 0 && (
+          <button
+            onClick={() => setShowIngredients(!showIngredients)}
+            className="absolute top-32 left-6 z-10 flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all"
+            aria-label={showIngredients ? 'Ocultar ingredientes' : 'Mostrar ingredientes'}
+          >
+            <span className="text-xl">📝</span>
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              Ingredientes ({checkedIngredients.size}/{ingredients.length})
+            </span>
+          </button>
+        )}
+
+        {showIngredients && ingredients.length > 0 && (
+          <div className="absolute top-52 left-6 z-10 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 max-h-96 overflow-y-auto">
+            <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center justify-between">
+              <span>Lista de Ingredientes</span>
+              <button
+                onClick={() => setShowIngredients(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Fechar lista"
+              >
+                ×
+              </button>
+            </h3>
+            <div className="space-y-2">
+              {ingredients.map((ingredient) => (
+                <label
+                  key={ingredient.id}
+                  className="flex items-center space-x-3 p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={checkedIngredients.has(ingredient.id)}
+                    onChange={() => {
+                      const newChecked = new Set(checkedIngredients);
+                      if (newChecked.has(ingredient.id)) {
+                        newChecked.delete(ingredient.id);
+                      } else {
+                        newChecked.add(ingredient.id);
+                      }
+                      setCheckedIngredients(newChecked);
+                    }}
+                    className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary"
+                  />
+                  <span
+                    className={`flex-1 ${checkedIngredients.has(ingredient.id) ? 'line-through text-gray-400' : 'text-gray-900 dark:text-white'}`}
+                  >
+                    <span className="font-medium">
+                      {ingredient.quantity} {ingredient.unit}
+                    </span>{' '}
+                    {ingredient.name}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Current Step */}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="max-w-3xl w-full">
