@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ToastProvider';
+import { useOpenGraph } from '@/hooks/useOpenGraph';
 import { Layout } from '@/components/Layout';
 import { SkeletonRecipeDetails } from '@/components/SkeletonRecipeDetails';
 import { Button } from '@/components/Button';
@@ -42,6 +43,15 @@ export const RecipeDetailsPage = () => {
   });
 
   const recipe = recipeData?.data;
+
+  // Add Open Graph meta tags for better social media sharing
+  useOpenGraph({
+    title: recipe?.title || 'SaborConnect - Receitas',
+    description: recipe?.description || 'Confira esta receita incrível no SaborConnect!',
+    image: recipe?.coverImageUrl,
+    url: typeof window !== 'undefined' ? window.location.href : undefined,
+    type: 'article',
+  });
 
   // Fetch comments
   const { data: commentsData, isLoading: loadingComments } = useQuery({
