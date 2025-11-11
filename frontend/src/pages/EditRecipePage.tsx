@@ -8,6 +8,9 @@ import { Select } from '@/components/Select';
 import { Button } from '@/components/Button';
 import { Alert } from '@/components/Alert';
 import { LoadingPage } from '@/components/LoadingSpinner';
+import { FieldError } from '@/components/FieldError';
+import { RecipePreview } from '@/components/RecipePreview';
+import { useFormValidation, validationRules as vr } from '@/hooks/useFormValidation';
 import api from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
 import type { ApiResponse, Recipe, Ingredient } from '@/types';
@@ -34,6 +37,39 @@ export const EditRecipePage = () => {
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [error, setError] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Validation rules
+  const validationRules = {
+    title: [
+      vr.required(),
+      vr.minLength(5, 'O título deve ter pelo menos 5 caracteres'),
+      vr.maxLength(100, 'O título deve ter no máximo 100 caracteres'),
+    ],
+    description: [
+      vr.required(),
+      vr.minLength(20, 'A descrição deve ter pelo menos 20 caracteres'),
+      vr.maxLength(500, 'A descrição deve ter no máximo 500 caracteres'),
+    ],
+    prepTimeMinutes: [
+      vr.required(),
+      vr.min(1, 'Tempo de preparo deve ser maior que 0'),
+      vr.max(1440, 'Tempo de preparo deve ser menor que 24 horas'),
+    ],
+    cookTimeMinutes: [
+      vr.required(),
+      vr.min(0, 'Tempo de cozimento não pode ser negativo'),
+      vr.max(1440, 'Tempo de cozimento deve ser menor que 24 horas'),
+    ],
+    portions: [
+      vr.required(),
+      vr.min(1, 'Deve ter pelo menos 1 porção'),
+      vr.max(100, 'Máximo de 100 porções'),
+    ],
+  };
+
+  const { errors, touched, validateAll, handleBlur, handleChange } =
+    useFormValidation(validationRules);
 
   // Fetch recipe
   const { data: recipeData, isLoading } = useQuery({
@@ -113,10 +149,17 @@ export const EditRecipePage = () => {
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+    handleChange(name, value);
+  };
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    handleBlur(name, value);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,17 +206,13 @@ export const EditRecipePage = () => {
     e.preventDefault();
     setError('');
 
-    // Validações
-    if (!formData.title.trim()) {
-      setError('Título é obrigatório');
+    // Validações de campos básicos
+    if (!validateAll(formData)) {
+      setError('Por favor, corrija os erros antes de continuar');
       return;
     }
 
-    if (!formData.description.trim()) {
-      setError('Descrição é obrigatória');
-      return;
-    }
-
+    // Validações de ingredientes e instruções
     const validIngredients = ingredients.filter((i) => i.name.trim());
     if (validIngredients.length === 0) {
       setError('Adicione pelo menos um ingrediente');
@@ -186,7 +225,13 @@ export const EditRecipePage = () => {
       return;
     }
 
+    // Show preview
+    setShowPreview(true);
+  };
+
+  const handlePublish = () => {
     updateMutation.mutate();
+    setShowPreview(false);
   };
 
   if (isLoading) {
@@ -222,51 +267,75 @@ export const EditRecipePage = () => {
               </h2>
 
               <div className="space-y-6">
-                <Input
-                  id="title"
-                  name="title"
-                  label="Título da Receita"
-                  required
-                  placeholder="Ex: Brigadeiro de Chocolate"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                />
+                <div>
+                  <Input
+                    id="title"
+                    name="title"
+                    label="Título da Receita"
+                    required
+                    placeholder="Ex: Brigadeiro de Chocolate"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    className={touched.title && errors.title ? 'border-red-500' : ''}
+                  />
+                  {touched.title && <FieldError error={errors.title} />}
+                </div>
 
-                <Textarea
-                  id="description"
-                  name="description"
-                  label="Descrição"
-                  required
-                  placeholder="Descreva sua receita de forma atrativa..."
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={4}
-                />
+                <div>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    label="Descrição"
+                    required
+                    placeholder="Descreva sua receita de forma atrativa..."
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    rows={4}
+                    className={touched.description && errors.description ? 'border-red-500' : ''}
+                  />
+                  {touched.description && <FieldError error={errors.description} />}
+                </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  <Input
-                    id="prepTimeMinutes"
-                    name="prepTimeMinutes"
-                    type="number"
-                    label="Tempo de Preparo (minutos)"
-                    required
-                    placeholder="30"
-                    value={formData.prepTimeMinutes}
-                    onChange={handleInputChange}
-                    min="0"
-                  />
+                  <div>
+                    <Input
+                      id="prepTimeMinutes"
+                      name="prepTimeMinutes"
+                      type="number"
+                      label="Tempo de Preparo (minutos)"
+                      required
+                      placeholder="30"
+                      value={formData.prepTimeMinutes}
+                      onChange={handleInputChange}
+                      onBlur={handleInputBlur}
+                      min="0"
+                      className={
+                        touched.prepTimeMinutes && errors.prepTimeMinutes ? 'border-red-500' : ''
+                      }
+                    />
+                    {touched.prepTimeMinutes && <FieldError error={errors.prepTimeMinutes} />}
+                  </div>
 
-                  <Input
-                    id="cookTimeMinutes"
-                    name="cookTimeMinutes"
-                    type="number"
-                    label="Tempo de Cozimento (minutos)"
-                    required
-                    placeholder="45"
-                    value={formData.cookTimeMinutes}
-                    onChange={handleInputChange}
-                    min="0"
-                  />
+                  <div>
+                    <Input
+                      id="cookTimeMinutes"
+                      name="cookTimeMinutes"
+                      type="number"
+                      label="Tempo de Cozimento (minutos)"
+                      required
+                      placeholder="45"
+                      value={formData.cookTimeMinutes}
+                      onChange={handleInputChange}
+                      onBlur={handleInputBlur}
+                      min="0"
+                      className={
+                        touched.cookTimeMinutes && errors.cookTimeMinutes ? 'border-red-500' : ''
+                      }
+                    />
+                    {touched.cookTimeMinutes && <FieldError error={errors.cookTimeMinutes} />}
+                  </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -286,17 +355,22 @@ export const EditRecipePage = () => {
                     ]}
                   />
 
-                  <Input
-                    id="portions"
-                    name="portions"
-                    type="number"
-                    label="Porções"
-                    required
-                    placeholder="4"
-                    value={formData.portions}
-                    onChange={handleInputChange}
-                    min="1"
-                  />
+                  <div>
+                    <Input
+                      id="portions"
+                      name="portions"
+                      type="number"
+                      label="Porções"
+                      required
+                      placeholder="4"
+                      value={formData.portions}
+                      onChange={handleInputChange}
+                      onBlur={handleInputBlur}
+                      min="1"
+                      className={touched.portions && errors.portions ? 'border-red-500' : ''}
+                    />
+                    {touched.portions && <FieldError error={errors.portions} />}
+                  </div>
                 </div>
 
                 <div>
@@ -447,10 +521,38 @@ export const EditRecipePage = () => {
                 Cancelar
               </Button>
               <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
-                {updateMutation.isPending ? 'Salvando...' : 'Salvar Alterações'}
+                {updateMutation.isPending ? 'Salvando...' : 'Pré-visualizar'}
               </Button>
             </div>
           </form>
+
+          {/* Recipe Preview Modal */}
+          <RecipePreview
+            isOpen={showPreview}
+            onClose={() => setShowPreview(false)}
+            recipe={{
+              title: formData.title,
+              description: formData.description,
+              prepTime: parseInt(formData.prepTimeMinutes) || 0,
+              cookTime: parseInt(formData.cookTimeMinutes) || 0,
+              difficulty: formData.difficulty,
+              servings: parseInt(formData.portions) || 0,
+              ingredients: ingredients
+                .filter((i) => i.name.trim())
+                .map((i) => `${i.quantity} ${i.unit} ${i.name}`.trim()),
+              instructions: instructions.filter((i) => i.trim()),
+              tags: tags
+                ? tags
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean)
+                : [],
+              image: imagePreview || undefined,
+            }}
+            onEdit={() => setShowPreview(false)}
+            onPublish={handlePublish}
+            isPublishing={updateMutation.isPending}
+          />
         </div>
       </div>
     </Layout>
