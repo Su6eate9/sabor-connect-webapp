@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
@@ -12,6 +12,7 @@ import { RecipePreview } from '@/components/RecipePreview';
 import { ImageUploadProgress } from '@/components/ImageUploadProgress';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { useFormValidation, validationRules as vr } from '@/hooks/useFormValidation';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import api from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
 import type { ApiResponse, Recipe, Ingredient } from '@/types';
@@ -39,6 +40,38 @@ export const CreateRecipePage = () => {
   const [imageUploading, setImageUploading] = useState(false);
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  // Auto-save draft
+  const draftData = {
+    formData,
+    ingredients,
+    instructions,
+    tags,
+  };
+
+  const { loadDraft, clearDraft } = useAutoSave(draftData, {
+    key: 'recipe-draft',
+    debounceMs: 2000,
+    enabled: draftLoaded, // Only save after initial load
+  });
+
+  // Load draft on mount
+  useEffect(() => {
+    const draft = loadDraft();
+    if (draft) {
+      const shouldLoad = window.confirm(
+        'Encontramos um rascunho salvo. Deseja continuar de onde parou?'
+      );
+      if (shouldLoad) {
+        setFormData(draft.formData);
+        setIngredients(draft.ingredients);
+        setInstructions(draft.instructions);
+        setTags(draft.tags);
+      }
+    }
+    setDraftLoaded(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rules = {
     title: [
@@ -102,6 +135,7 @@ export const CreateRecipePage = () => {
       return response.data;
     },
     onSuccess: (data) => {
+      clearDraft(); // Clear draft after successful creation
       navigate(`/recipe/${data.data.slug}`);
     },
     onError: (err: any) => {
@@ -227,9 +261,30 @@ export const CreateRecipePage = () => {
 
             {/* Informações Básicas */}
             <div className="card p-8">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-                Informações Básicas
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Informações Básicas
+                </h2>
+                {draftLoaded && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Salvamento automático ativo
+                  </span>
+                )}
+              </div>
 
               <div className="space-y-6">
                 <div>
