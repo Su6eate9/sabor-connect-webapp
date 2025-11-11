@@ -4,6 +4,7 @@ import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
 import { LoadingPage } from '@/components/LoadingSpinner';
 import { Button } from '@/components/Button';
+import { EmptyState } from '@/components/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { User, Recipe, ApiResponse } from '@/types';
@@ -134,26 +135,22 @@ export const ProfilePage = () => {
               ))}
             </div>
           ) : (
-            <div className="card p-16 text-center">
-              <div className="text-8xl mb-6">📖</div>
-              <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
-                Nenhuma receita ainda
-              </h3>
-              {isOwnProfile ? (
-                <>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Comece compartilhando sua primeira receita com a comunidade!
-                  </p>
+            <EmptyState
+              icon="📖"
+              title="Nenhuma receita publicada"
+              description={
+                isOwnProfile
+                  ? 'Comece compartilhando sua primeira receita com a comunidade!'
+                  : 'Este usuário ainda não publicou nenhuma receita.'
+              }
+              action={
+                isOwnProfile && (
                   <Link to={ROUTES.RECIPE_CREATE}>
                     <Button>Criar Primeira Receita</Button>
                   </Link>
-                </>
-              ) : (
-                <p className="text-gray-600 dark:text-gray-400">
-                  Este usuário ainda não publicou nenhuma receita.
-                </p>
-              )}
-            </div>
+                )
+              }
+            />
           )}
         </div>
       </div>

@@ -5,6 +5,7 @@ import { Layout } from '@/components/Layout';
 import { RecipeCard } from '@/components/RecipeCard';
 import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
 import { Pagination } from '@/components/Pagination';
+import { EmptyState } from '@/components/EmptyState';
 import { AdvancedFilters, FilterValues } from '@/components/AdvancedFilters';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
@@ -99,20 +100,41 @@ export const RecipesPage = () => {
 
           {data && (
             <>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {data.data.map((recipe) => (
-                  <RecipeCard key={recipe.id} recipe={recipe} />
-                ))}
-              </div>
-
-              {data.meta && data.meta.totalPages > 1 && (
-                <Pagination
-                  currentPage={page}
-                  totalPages={data.meta.totalPages}
-                  onPageChange={handlePageChange}
-                  totalItems={data.meta.total}
-                  itemsPerPage={data.meta.limit}
+              {data.data.length === 0 ? (
+                <EmptyState
+                  icon="🍳"
+                  title="Nenhuma receita encontrada"
+                  description={
+                    search || difficulty
+                      ? 'Tente ajustar os filtros ou fazer uma nova busca.'
+                      : 'Seja o primeiro a compartilhar uma receita!'
+                  }
+                  action={
+                    (search || difficulty) && (
+                      <button onClick={handleResetFilters} className="btn-primary">
+                        Limpar Filtros
+                      </button>
+                    )
+                  }
                 />
+              ) : (
+                <>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    {data.data.map((recipe) => (
+                      <RecipeCard key={recipe.id} recipe={recipe} />
+                    ))}
+                  </div>
+
+                  {data.meta && data.meta.totalPages > 1 && (
+                    <Pagination
+                      currentPage={page}
+                      totalPages={data.meta.totalPages}
+                      onPageChange={handlePageChange}
+                      totalItems={data.meta.total}
+                      itemsPerPage={data.meta.limit}
+                    />
+                  )}
+                </>
               )}
             </>
           )}

@@ -13,6 +13,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ShareButtons } from '@/components/ShareButtons';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { CookingMode } from '@/components/CookingMode';
+import { EmptyState } from '@/components/EmptyState';
 import api from '@/lib/api';
 import { Recipe, Comment, ApiResponse } from '@/types';
 import { ROUTES, DIFFICULTY_LABELS } from '@/lib/constants';
@@ -588,9 +589,22 @@ export const RecipeDetailsPage = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-600">
-                  Nenhum comentário ainda. Seja o primeiro!
-                </p>
+                <EmptyState
+                  icon="💬"
+                  title="Nenhum comentário ainda"
+                  description={
+                    isAuthenticated
+                      ? 'Seja o primeiro a comentar esta receita!'
+                      : 'Faça login para deixar seu comentário.'
+                  }
+                  action={
+                    !isAuthenticated && (
+                      <Link to={ROUTES.LOGIN}>
+                        <button className="btn-primary">Fazer Login</button>
+                      </Link>
+                    )
+                  }
+                />
               )}
             </div>
           </div>
