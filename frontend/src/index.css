@@ -19,6 +19,28 @@
   h6 {
     @apply font-display font-bold;
   }
+
+  /* Enhanced focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 dark:ring-primary-400 dark:ring-offset-gray-900;
+  }
+
+  /* Ensure links are keyboard accessible */
+  a:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 rounded dark:ring-primary-400 dark:ring-offset-gray-900;
+  }
+
+  /* Button focus states */
+  button:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 dark:ring-primary-400 dark:ring-offset-gray-900;
+  }
+
+  /* Input focus states */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 border-transparent dark:ring-primary-400;
+  }
 }
 
 @layer components {
