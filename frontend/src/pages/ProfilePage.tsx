@@ -77,11 +77,15 @@ export const ProfilePage = () => {
               {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
-                  alt={user.name}
+                  alt={`Foto de perfil de ${user.name}`}
                   className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                  loading="eager"
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-white text-primary flex items-center justify-center text-5xl font-bold border-4 border-white shadow-lg">
+                <div
+                  className="w-32 h-32 rounded-full bg-white text-primary flex items-center justify-center text-5xl font-bold border-4 border-white shadow-lg"
+                  aria-label={`Avatar de ${user.name}`}
+                >
                   {user.name.charAt(0).toUpperCase()}
                 </div>
               )}

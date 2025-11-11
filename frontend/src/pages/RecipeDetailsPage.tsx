@@ -259,8 +259,9 @@ export const RecipeDetailsPage = () => {
             <>
               <img
                 src={recipe.coverImageUrl}
-                alt={recipe.title}
+                alt={`Foto principal da receita: ${recipe.title} - ${DIFFICULTY_LABELS[recipe.difficulty]}, ${recipe.portions} porções`}
                 className="w-full h-full object-cover"
+                loading="eager"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent no-print" />
             </>
@@ -393,15 +394,20 @@ export const RecipeDetailsPage = () => {
                 <Link
                   to={`/profile/${recipe.author.id}`}
                   className="flex items-center gap-3 hover:opacity-80"
+                  aria-label={`Ver perfil de ${recipe.author.name}`}
                 >
                   {recipe.author.avatarUrl ? (
                     <img
                       src={recipe.author.avatarUrl}
-                      alt={recipe.author.name}
+                      alt={`Foto de perfil de ${recipe.author.name}`}
                       className="w-12 h-12 rounded-full object-cover"
+                      loading="lazy"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold">
+                    <div
+                      className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold"
+                      aria-label={`Avatar de ${recipe.author.name}`}
+                    >
                       {recipe.author.name.charAt(0).toUpperCase()}
                     </div>
                   )}

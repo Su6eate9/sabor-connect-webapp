@@ -35,7 +35,7 @@ export const RecipeCard = ({ recipe }: RecipeCardProps) => {
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-orange-400 via-rose-400 to-pink-500 dark:from-orange-600 dark:via-rose-600 dark:to-pink-700">
         <img
           src={imageUrl}
-          alt={recipe.title}
+          alt={`Foto da receita: ${recipe.title}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />

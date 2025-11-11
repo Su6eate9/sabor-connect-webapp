@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDebounce } from '@/hooks/useDebounce';
 import { ROUTES } from '../lib/constants';
 
 export interface AutocompleteItem {
@@ -29,14 +30,17 @@ export const Autocomplete = ({
   const listRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
+  // Debounce the search query to avoid excessive API calls
+  const debouncedQuery = useDebounce(query, 300);
+
   useEffect(() => {
-    if (query.length >= 2) {
+    if (debouncedQuery.length >= 2) {
       setIsOpen(true);
-      onSearch(query);
+      onSearch(debouncedQuery);
     } else {
       setIsOpen(false);
     }
-  }, [query, onSearch]);
+  }, [debouncedQuery, onSearch]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
