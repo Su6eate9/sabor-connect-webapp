@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { Alert } from '@/components/Alert';
 import { FieldError } from '@/components/FieldError';
 import { RecipePreview } from '@/components/RecipePreview';
+import { ImageUploadProgress } from '@/components/ImageUploadProgress';
 import { useFormValidation, validationRules as vr } from '@/hooks/useFormValidation';
 import api from '@/lib/api';
 import { ROUTES } from '@/lib/constants';
@@ -34,6 +35,7 @@ export const CreateRecipePage = () => {
   const [tags, setTags] = useState<string>('');
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageUploading, setImageUploading] = useState(false);
   const [error, setError] = useState('');
   const [showPreview, setShowPreview] = useState(false);
 
@@ -124,10 +126,18 @@ export const CreateRecipePage = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageUploading(true);
       setCoverImage(file);
       const reader = new FileReader();
+      reader.onloadstart = () => {
+        setImageUploading(true);
+      };
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        // Simula processamento da imagem
+        setTimeout(() => {
+          setImageUploading(false);
+        }, 800);
       };
       reader.readAsDataURL(file);
     }
@@ -344,10 +354,13 @@ export const CreateRecipePage = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                  disabled={imageUploading}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
 
-                {imagePreview && (
+                <ImageUploadProgress isUploading={imageUploading} fileName={coverImage?.name} />
+
+                {imagePreview && !imageUploading && (
                   <div className="relative">
                     <img
                       src={imagePreview}

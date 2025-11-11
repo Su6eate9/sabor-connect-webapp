@@ -304,15 +304,18 @@ export const RecipeDetailsPage = () => {
                   onClick={handleLike}
                   variant={recipe.isLiked ? 'primary' : 'outline'}
                   className={recipe.isLiked ? 'animate-pulse-heart' : ''}
+                  disabled={likeMutation.isPending}
                 >
-                  {recipe.isLiked ? '❤️' : '🤍'} {recipe._count?.likes || 0} Curtidas
+                  {likeMutation.isPending ? '⏳' : recipe.isLiked ? '❤️' : '🤍'}{' '}
+                  {recipe._count?.likes || 0} Curtidas
                 </Button>
 
                 <Button
                   onClick={handleFavorite}
                   variant={recipe.isFavorited ? 'primary' : 'outline'}
+                  disabled={favoriteMutation.isPending}
                 >
-                  {recipe.isFavorited ? '⭐' : '☆'}{' '}
+                  {favoriteMutation.isPending ? '⏳' : recipe.isFavorited ? '⭐' : '☆'}{' '}
                   {recipe.isFavorited ? 'Favoritado' : 'Favoritar'}
                 </Button>
 

@@ -149,6 +149,19 @@
     }
   }
 
+  @keyframes upload-progress {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .animate-upload-progress {
+    animation: upload-progress 1.5s ease-in-out;
+  }
+
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
