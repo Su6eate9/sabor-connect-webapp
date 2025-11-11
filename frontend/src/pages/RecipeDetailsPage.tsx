@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ToastProvider';
 import { Layout } from '@/components/Layout';
-import { LoadingPage } from '@/components/LoadingSpinner';
+import { SkeletonRecipeDetails } from '@/components/SkeletonRecipeDetails';
 import { Button } from '@/components/Button';
 import { Textarea } from '@/components/Textarea';
 import { Alert } from '@/components/Alert';
@@ -206,7 +206,11 @@ export const RecipeDetailsPage = () => {
   };
 
   if (loadingRecipe) {
-    return <LoadingPage />;
+    return (
+      <Layout>
+        <SkeletonRecipeDetails />
+      </Layout>
+    );
   }
 
   if (!recipe) {
