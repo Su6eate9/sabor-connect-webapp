@@ -7,6 +7,7 @@ import { SkeletonRecipeGrid } from '@/components/SkeletonRecipeGrid';
 import { EmptyState } from '@/components/EmptyState';
 import { StatCard } from '@/components/StatCard';
 import { ActivityTimeline } from '@/components/ActivityTimeline';
+import { SocialFeed } from '@/components/SocialFeed';
 import { Button } from '@/components/Button';
 import api from '@/lib/api';
 import { Recipe, ApiResponse } from '@/types';
@@ -31,7 +32,7 @@ export const DashboardPage = () => {
     },
   });
 
-  // Mock activities (would come from backend in production)
+  // Mock activities for timeline
   const recentActivities = [
     ...(myRecipes?.data?.slice(0, 3).map((recipe) => ({
       id: `recipe-${recipe.id}`,
@@ -50,6 +51,34 @@ export const DashboardPage = () => {
       timestamp: new Date(recipe.createdAt),
       icon: '❤️',
       color: 'bg-red-500',
+    })) || []),
+  ]
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    .slice(0, 5);
+
+  // Mock social feed items (would come from backend in production)
+  const socialFeedItems = [
+    ...(myRecipes?.data?.slice(0, 2).map((recipe) => ({
+      id: `feed-recipe-${recipe.id}`,
+      type: 'new_recipe' as const,
+      user: {
+        id: user?.id || '',
+        name: user?.name || '',
+        avatarUrl: user?.avatarUrl,
+      },
+      recipe,
+      timestamp: new Date(recipe.createdAt),
+    })) || []),
+    ...(favorites?.data?.slice(0, 3).map((recipe) => ({
+      id: `feed-fav-${recipe.id}`,
+      type: 'favorited' as const,
+      user: {
+        id: user?.id || '',
+        name: user?.name || '',
+        avatarUrl: user?.avatarUrl,
+      },
+      recipe,
+      timestamp: new Date(recipe.createdAt),
     })) || []),
   ]
     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
@@ -169,10 +198,18 @@ export const DashboardPage = () => {
             )}
           </section>
 
+          {/* Social Feed */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
+              Feed da Comunidade 🌟
+            </h2>
+            <SocialFeed items={socialFeedItems} />
+          </section>
+
           {/* Activity Timeline */}
           <section className="mb-8">
             <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
-              Atividades Recentes
+              Minhas Atividades Recentes
             </h2>
             <div className="card p-6">
               <ActivityTimeline activities={recentActivities} />
