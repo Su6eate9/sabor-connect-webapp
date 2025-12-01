@@ -32,6 +32,15 @@ export const DashboardPage = () => {
     },
   });
 
+  // Fetch feed recipes (from all users)
+  const { data: feedRecipes, isLoading: loadingFeed } = useQuery({
+    queryKey: ['feed-recipes'],
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<Recipe[]>>(`/recipes/feed?limit=10`);
+      return response.data;
+    },
+  });
+
   // Mock activities for timeline
   const recentActivities = [
     ...(myRecipes?.data?.slice(0, 3).map((recipe) => ({
@@ -56,33 +65,18 @@ export const DashboardPage = () => {
     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
     .slice(0, 5);
 
-  // Mock social feed items (would come from backend in production)
-  const socialFeedItems = [
-    ...(myRecipes?.data?.slice(0, 2).map((recipe) => ({
-      id: `feed-recipe-${recipe.id}`,
-      type: 'new_recipe' as const,
-      user: {
-        id: user?.id || '',
-        name: user?.name || '',
-        avatarUrl: user?.avatarUrl,
-      },
-      recipe,
-      timestamp: new Date(recipe.createdAt),
-    })) || []),
-    ...(favorites?.data?.slice(0, 3).map((recipe) => ({
-      id: `feed-fav-${recipe.id}`,
-      type: 'favorited' as const,
-      user: {
-        id: user?.id || '',
-        name: user?.name || '',
-        avatarUrl: user?.avatarUrl,
-      },
-      recipe,
-      timestamp: new Date(recipe.createdAt),
-    })) || []),
-  ]
-    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-    .slice(0, 5);
+  // Social feed items from real recipes
+  const socialFeedItems = (feedRecipes?.data || []).map((recipe) => ({
+    id: `feed-recipe-${recipe.id}`,
+    type: 'new_recipe' as const,
+    user: {
+      id: recipe.author.id,
+      name: recipe.author.name,
+      avatarUrl: recipe.author.avatarUrl,
+    },
+    recipe,
+    timestamp: new Date(recipe.createdAt),
+  })).slice(0, 10);
 
   return (
     <Layout>
@@ -203,7 +197,13 @@ export const DashboardPage = () => {
             <h2 className="text-2xl font-display font-bold mb-6 text-gray-900 dark:text-white">
               Feed da Comunidade 🌟
             </h2>
-            <SocialFeed items={socialFeedItems} />
+            {loadingFeed ? (
+              <div className="text-center py-12">
+                <p className="text-gray-600 dark:text-gray-400">Carregando feed...</p>
+              </div>
+            ) : (
+              <SocialFeed items={socialFeedItems} />
+            )}
           </section>
 
           {/* Activity Timeline */}

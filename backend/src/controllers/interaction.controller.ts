@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
 import { sendSuccess } from '../utils/response';
-import { NotFoundError, ConflictError, AuthorizationError } from '../utils/errors';
+import { NotFoundError, AuthorizationError } from '../utils/errors';
 import { createCommentSchema, CreateCommentInput } from '../validators/recipe.validator';
 import { config } from '../config';
 
@@ -16,7 +16,7 @@ export const likeRecipe = async (req: Request, res: Response, next: NextFunction
       throw new NotFoundError('Recipe');
     }
 
-    // Check if already liked
+    // Check if already liked - if so, toggle (unlike)
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_recipeId: {
@@ -27,10 +27,19 @@ export const likeRecipe = async (req: Request, res: Response, next: NextFunction
     });
 
     if (existingLike) {
-      throw new ConflictError('Recipe already liked');
+      // Unlike (toggle off)
+      await prisma.like.delete({
+        where: {
+          userId_recipeId: {
+            userId,
+            recipeId,
+          },
+        },
+      });
+      return sendSuccess(res, { message: 'Recipe unliked successfully', liked: false });
     }
 
-    // Create like
+    // Create like (toggle on)
     const like = await prisma.like.create({
       data: {
         userId,
@@ -38,7 +47,7 @@ export const likeRecipe = async (req: Request, res: Response, next: NextFunction
       },
     });
 
-    return sendSuccess(res, like, 201);
+    return sendSuccess(res, { ...like, liked: true }, 201);
   } catch (error) {
     next(error);
   }
@@ -89,7 +98,7 @@ export const favoriteRecipe = async (req: Request, res: Response, next: NextFunc
       throw new NotFoundError('Recipe');
     }
 
-    // Check if already favorited
+    // Check if already favorited - if so, toggle (unfavorite)
     const existingFavorite = await prisma.favorite.findUnique({
       where: {
         userId_recipeId: {
@@ -100,10 +109,19 @@ export const favoriteRecipe = async (req: Request, res: Response, next: NextFunc
     });
 
     if (existingFavorite) {
-      throw new ConflictError('Recipe already favorited');
+      // Unfavorite (toggle off)
+      await prisma.favorite.delete({
+        where: {
+          userId_recipeId: {
+            userId,
+            recipeId,
+          },
+        },
+      });
+      return sendSuccess(res, { message: 'Recipe removed from favorites', favorited: false });
     }
 
-    // Create favorite
+    // Create favorite (toggle on)
     const favorite = await prisma.favorite.create({
       data: {
         userId,
@@ -111,7 +129,7 @@ export const favoriteRecipe = async (req: Request, res: Response, next: NextFunc
       },
     });
 
-    return sendSuccess(res, favorite, 201);
+    return sendSuccess(res, { ...favorite, favorited: true }, 201);
   } catch (error) {
     next(error);
   }

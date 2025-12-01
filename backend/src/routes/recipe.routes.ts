@@ -6,6 +6,7 @@ import {
   updateRecipe,
   deleteRecipe,
   getUserRecipes,
+  getFeed,
 } from '../controllers/recipe.controller';
 import { authenticate } from '../middleware/authenticate';
 import { upload } from '../middleware/upload';
@@ -24,6 +25,9 @@ const clearRecipeCache = async (_req: Request, _res: Response, next: NextFunctio
 
 // Cache de 5 minutos para listagem de receitas
 router.get('/', cacheMiddleware(300), getRecipes);
+
+// Cache de 3 minutos para feed (mais dinâmico)
+router.get('/feed', cacheMiddleware(180), getFeed);
 
 // Cache de 15 minutos para receitas de usuário específico
 router.get('/user/:userId', cacheMiddleware(900), getUserRecipes);

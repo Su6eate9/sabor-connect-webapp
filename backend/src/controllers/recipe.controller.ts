@@ -491,3 +491,66 @@ export const getUserRecipes = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
+export const getFeed = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { page = '1', limit = '10' } = req.query;
+
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = Math.min(
+      parseInt(limit as string, 10),
+      config.pagination.maxLimit
+    );
+    const skip = (pageNum - 1) * limitNum;
+
+    // Get recent recipes from all users
+    const [recipes, total] = await Promise.all([
+      prisma.recipe.findMany({
+        skip,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+            },
+          },
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+              favorites: true,
+            },
+          },
+        },
+      }),
+      prisma.recipe.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limitNum);
+
+    return sendSuccess(
+      res,
+      recipes.map((recipe) => ({
+        ...recipe,
+        tags: recipe.tags.map((rt) => rt.tag),
+      })),
+      200,
+      {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages,
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+};
