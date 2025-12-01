@@ -425,30 +425,32 @@ export const RecipeDetailsPage = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleLike}
-                    disabled={likeMutation.isPending}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    disabled={!isAuthenticated || likeMutation.isPending}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
                       recipe.isLiked
-                        ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/50 hover:bg-red-600'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
+                    title={!isAuthenticated ? 'Faça login para curtir' : ''}
                   >
                     <Heart 
-                      className={`w-5 h-5 ${recipe.isLiked ? 'fill-current' : ''}`}
+                      className={`w-5 h-5 transition-all ${recipe.isLiked ? 'fill-current animate-pulse' : ''}`}
                     />
                     <span className="font-semibold">{recipe._count?.likes || 0}</span>
                   </button>
 
                   <button
                     onClick={handleFavorite}
-                    disabled={favoriteMutation.isPending}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    disabled={!isAuthenticated || favoriteMutation.isPending}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
                       recipe.isFavorited
-                        ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-500 hover:bg-yellow-100 dark:hover:bg-yellow-900/30'
+                        ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/50 hover:bg-yellow-600'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
+                    title={!isAuthenticated ? 'Faça login para favoritar' : ''}
                   >
                     <Star 
-                      className={`w-5 h-5 ${recipe.isFavorited ? 'fill-current' : ''}`}
+                      className={`w-5 h-5 transition-all ${recipe.isFavorited ? 'fill-current animate-pulse' : ''}`}
                     />
                     <span className="font-semibold">
                       {recipe.isFavorited ? 'Favoritado' : 'Favoritar'}
