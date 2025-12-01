@@ -43,7 +43,11 @@ export const getRecipes = async (req: Request, res: Response, next: NextFunction
     }
 
     if (difficulty) {
-      where.difficulty = difficulty;
+      // Converter para uppercase para corresponder ao enum
+      const difficultyUpper = (difficulty as string).toUpperCase();
+      if (['EASY', 'MEDIUM', 'HARD'].includes(difficultyUpper)) {
+        where.difficulty = difficultyUpper;
+      }
     }
 
     if (tags) {

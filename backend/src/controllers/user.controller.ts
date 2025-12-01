@@ -108,3 +108,119 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
     next(error);
   }
 };
+
+export const getUserStats = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar se o usuário existe
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User');
+    }
+
+    // Buscar estatísticas
+    const [recipesCount, likesReceived, favoritesReceived, commentsReceived] = await Promise.all([
+      prisma.recipe.count({ where: { authorId: id } }),
+      prisma.like.count({
+        where: {
+          recipe: {
+            authorId: id,
+          },
+        },
+      }),
+      prisma.favorite.count({
+        where: {
+          recipe: {
+            authorId: id,
+          },
+        },
+      }),
+      prisma.comment.count({
+        where: {
+          recipe: {
+            authorId: id,
+          },
+        },
+      }),
+    ]);
+
+    return sendSuccess(res, {
+      recipesCount,
+      likesReceived,
+      favoritesReceived,
+      commentsReceived,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserFavorites = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).userId;
+    const { page = '1', limit = '12' } = req.query;
+
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = Math.min(parseInt(limit as string, 10), 100);
+    const skip = (pageNum - 1) * limitNum;
+
+    const [favorites, total] = await Promise.all([
+      prisma.favorite.findMany({
+        where: { userId },
+        skip,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          recipe: {
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatarUrl: true,
+                },
+              },
+              tags: {
+                include: {
+                  tag: true,
+                },
+              },
+              _count: {
+                select: {
+                  likes: true,
+                  comments: true,
+                  favorites: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.favorite.count({ where: { userId } }),
+    ]);
+
+    const totalPages = Math.ceil(total / limitNum);
+
+    return sendSuccess(
+      res,
+      favorites.map((fav) => ({
+        ...fav.recipe,
+        tags: fav.recipe.tags.map((rt) => rt.tag),
+      })),
+      200,
+      {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages,
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+};
