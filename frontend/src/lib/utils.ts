@@ -32,10 +32,11 @@ export const getImageUrl = (path?: string): string => {
 };
 
 export const getRecipePlaceholderImage = (recipeName: string): string => {
-  // Usa Unsplash Source API para gerar imagens de comida relacionadas
-  const query = 'food,cooking,meal,cuisine,dish';
-  const seed = recipeName.toLowerCase().replace(/\s+/g, '-');
-  return `https://source.unsplash.com/800x600/?${query}&sig=${seed}`;
+  // Usa Picsum Photos para gerar imagens placeholder
+  // Gera um ID baseado no nome da receita para consistência
+  const seed = recipeName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const imageId = (seed % 1000) + 1; // IDs de 1 a 1000
+  return `https://picsum.photos/seed/${imageId}/800/600`;
 };
 
 export const truncate = (text: string, length: number): string => {
