@@ -111,7 +111,15 @@ export const ProfilePage = () => {
               </div>
 
               {isOwnProfile && (
-                <div>
+                <div className="flex gap-3">
+                  <Link to="/settings">
+                    <Button
+                      variant="outline"
+                      className="bg-white text-primary border-white hover:bg-gray-100"
+                    >
+                      ⚙️ Configurações
+                    </Button>
+                  </Link>
                   <Link to={ROUTES.RECIPE_CREATE}>
                     <Button
                       variant="outline"

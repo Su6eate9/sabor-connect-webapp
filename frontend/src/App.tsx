@@ -14,6 +14,7 @@ import { EditRecipePage } from './pages/EditRecipePage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { FavoritesPage } from './pages/FavoritesPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { ROUTES } from './lib/constants';
 
 // Create a client
@@ -92,6 +93,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <FavoritesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <SettingsPage />
                   </ProtectedRoute>
                 }
               />
