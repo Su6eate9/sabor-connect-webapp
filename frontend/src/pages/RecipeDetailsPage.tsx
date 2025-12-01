@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Heart, Star, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ToastProvider';
 import { useOpenGraph } from '@/hooks/useOpenGraph';
@@ -424,25 +425,31 @@ export const RecipeDetailsPage = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleLike}
+                    disabled={likeMutation.isPending}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                       recipe.isLiked
                         ? 'bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
-                    <span className="text-xl">{recipe.isLiked ? '❤️' : '🤍'}</span>
+                    <Heart 
+                      className={`w-5 h-5 ${recipe.isLiked ? 'fill-current' : ''}`}
+                    />
                     <span className="font-semibold">{recipe._count?.likes || 0}</span>
                   </button>
 
                   <button
                     onClick={handleFavorite}
+                    disabled={favoriteMutation.isPending}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                       recipe.isFavorited
                         ? 'bg-yellow-500 text-white hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
-                    <span className="text-xl">{recipe.isFavorited ? '⭐' : '☆'}</span>
+                    <Star 
+                      className={`w-5 h-5 ${recipe.isFavorited ? 'fill-current' : ''}`}
+                    />
                     <span className="font-semibold">
                       {recipe.isFavorited ? 'Favoritado' : 'Favoritar'}
                     </span>
@@ -462,12 +469,17 @@ export const RecipeDetailsPage = () => {
                     key={ingredient.id}
                     className="ingredient-item flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                   >
-                    <input
-                      type="checkbox"
-                      checked={checkedIngredients.has(index)}
-                      onChange={() => toggleIngredient(index)}
-                      className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600"
-                    />
+                    <div className="relative flex items-center justify-center w-5 h-5">
+                      <input
+                        type="checkbox"
+                        checked={checkedIngredients.has(index)}
+                        onChange={() => toggleIngredient(index)}
+                        className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                      />
+                      {checkedIngredients.has(index) && (
+                        <Check className="w-4 h-4 text-white absolute pointer-events-none" />
+                      )}
+                    </div>
                     <span
                       className={`flex-1 ${
                         checkedIngredients.has(index)

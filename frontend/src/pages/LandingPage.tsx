@@ -19,12 +19,20 @@ export const LandingPage = () => {
             compartilhadas por cozinheiros apaixonados como você.
           </p>
           <div className="flex justify-center space-x-4">
-            <Link to={ROUTES.REGISTER} className="btn-primary text-lg px-8 py-3">
-              Começar Agora
-            </Link>
-            <Link to={ROUTES.RECIPES} className="btn-outline text-lg px-8 py-3">
-              Explorar Receitas
-            </Link>
+            {isAuthenticated ? (
+              <Link to={ROUTES.RECIPES} className="btn-primary text-lg px-8 py-3">
+                Explorar Receitas
+              </Link>
+            ) : (
+              <>
+                <Link to={ROUTES.REGISTER} className="btn-primary text-lg px-8 py-3">
+                  Começar Agora
+                </Link>
+                <Link to={ROUTES.RECIPES} className="btn-outline text-lg px-8 py-3">
+                  Explorar Receitas
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>

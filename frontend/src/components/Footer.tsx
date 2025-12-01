@@ -9,7 +9,6 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <span className="text-2xl">🍳</span>
               <span className="text-xl font-display font-bold text-white">SaborConnect</span>
             </div>
             <p className="text-sm">
