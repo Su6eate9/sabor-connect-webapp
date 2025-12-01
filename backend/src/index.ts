@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import compression from 'compression';
 import path from 'path';
 import { config } from './config';
 import routes from './routes';
@@ -14,7 +15,11 @@ import fs from 'fs';
 const app = express();
 
 // Security middleware
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Permite carregar imagens de outros domínios
+  })
+);
 
 // CORS
 app.use(
@@ -23,6 +28,9 @@ app.use(
     credentials: true,
   })
 );
+
+// Compressão gzip
+app.use(compression());
 
 // Logging estruturado
 app.use(requestLogger);
@@ -39,12 +47,36 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Create uploads directory if it doesn't exist
-if (!fs.existsSync(config.upload.dir)) {
-  fs.mkdirSync(config.upload.dir, { recursive: true });
+const uploadsPath = path.resolve(config.upload.dir);
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+  logInfo('Uploads directory created', { path: uploadsPath });
 }
 
-// Serve static files (uploads)
-app.use('/uploads', express.static(path.resolve(config.upload.dir)));
+// Serve static files (uploads) com cache headers
+app.use(
+  '/uploads',
+  express.static(uploadsPath, {
+    maxAge: '1y', // Cache por 1 ano
+    etag: true, // Habilita ETag
+    lastModified: true, // Habilita Last-Modified
+    immutable: true, // Indica que o arquivo não muda
+    setHeaders: (res, filePath) => {
+      // Cache headers específicos por tipo de arquivo
+      if (filePath.endsWith('.webp') || filePath.endsWith('.jpg') || filePath.endsWith('.png')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+      // Permite CORS para imagens
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  })
+);
+
+logInfo('Static files configured', {
+  path: uploadsPath,
+  cacheMaxAge: '1 year',
+});
 
 // Health checks (sem rate limiting para permitir health checks frequentes)
 app.get('/health', (_req, res) => {

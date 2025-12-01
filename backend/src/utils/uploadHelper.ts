@@ -1,196 +1,334 @@
-import { Request } from 'express';
-import fs from 'fs/promises';
 import path from 'path';
-import {
-  uploadToS3,
-  uploadMultipleToS3,
-  deleteFromS3,
-  deleteMultipleFromS3,
-  extractS3Key,
-  isS3Configured,
-} from '../config/s3';
-import { logInfo, logError, logDebug } from '../config/logger';
+import fs from 'fs/promises';
 import { config } from '../config';
+import { isS3Configured, uploadToS3, deleteFromS3 } from '../config/s3';
+import { processImage, deleteImageVersions, ImageSizes } from './imageProcessor';
+import { logInfo, logError, logDebug } from '../config/logger';
 
-interface UploadResult {
+export interface UploadResult {
   url: string;
-  key?: string;
   cdnUrl?: string;
+  sizes?: ImageSizes;
+  key?: string;
 }
 
 /**
- * Faz upload de um arquivo (S3 ou local)
+ * Faz upload de uma imagem (S3 ou local)
  */
-export const uploadFile = async (
+export const uploadImage = async (
   file: Express.Multer.File,
-  folder: string = 'uploads'
+  options: {
+    folder?: string;
+    processImage?: boolean;
+    quality?: number;
+    addWatermark?: boolean;
+  } = {}
 ): Promise<UploadResult> => {
+  const {
+    folder = 'recipes',
+    processImage: shouldProcess = true,
+    quality = 85,
+    addWatermark = false,
+  } = options;
+
   try {
-    // Se S3 estiver configurado, usa S3
+    logDebug('Starting image upload', {
+      filename: file.originalname,
+      size: file.size,
+      mimetype: file.mimetype,
+      useS3: isS3Configured(),
+    });
+
+    // Se S3 estiver configurado, usar S3
     if (isS3Configured()) {
-      const { url, key, cdnUrl } = await uploadToS3(file, folder);
-      return { url: cdnUrl || url, key, cdnUrl };
+      const result = await uploadToS3(file, folder);
+      
+      logInfo('Image uploaded to S3', {
+        key: result.key,
+        url: result.url,
+        cdnUrl: result.cdnUrl,
+      });
+
+      return {
+        url: result.cdnUrl || result.url,
+        cdnUrl: result.cdnUrl,
+        key: result.key,
+      };
     }
 
-    // Fallback para storage local
-    logDebug('Using local storage (S3 not configured)');
+    // Caso contrário, usar storage local
+    const uploadDir = path.join(process.cwd(), config.upload.dir);
 
-    const uploadDir = path.join(config.upload.dir, folder);
+    // Garantir que o diretório existe
     await fs.mkdir(uploadDir, { recursive: true });
 
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const filename = file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname);
-    const filepath = path.join(uploadDir, filename);
+    if (shouldProcess) {
+      // Processar imagem gerando múltiplos tamanhos
+      const sizes = await processImage(file.buffer, file.originalname, uploadDir, {
+        quality,
+        addWatermark,
+      });
 
-    await fs.writeFile(filepath, file.buffer);
+      logInfo('Image processed and saved locally', {
+        filename: file.originalname,
+        sizes: Object.keys(sizes),
+      });
 
-    const url = `/uploads/${folder}/${filename}`;
+      return {
+        url: sizes.large, // URL principal (large)
+        sizes,
+      };
+    } else {
+      // Salvar imagem original sem processar
+      const filename = file.originalname;
+      const filepath = path.join(uploadDir, filename);
+      
+      await fs.writeFile(filepath, file.buffer);
 
-    logInfo('File uploaded locally', { url, size: file.size });
+      logInfo('Image saved locally without processing', {
+        filename,
+        path: filepath,
+      });
 
-    return { url };
+      return {
+        url: `/uploads/${filename}`,
+      };
+    }
   } catch (error) {
-    logError('Error uploading file', error);
-    throw new Error('Failed to upload file');
+    logError('Error uploading image', error);
+    throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
 /**
- * Faz upload de múltiplos arquivos
+ * Faz upload de múltiplas imagens
  */
-export const uploadMultipleFiles = async (
+export const uploadMultipleImages = async (
   files: Express.Multer.File[],
-  folder: string = 'uploads'
+  options: {
+    folder?: string;
+    processImage?: boolean;
+    quality?: number;
+    addWatermark?: boolean;
+  } = {}
 ): Promise<UploadResult[]> => {
   try {
-    // Se S3 estiver configurado, usa S3
-    if (isS3Configured()) {
-      const results = await uploadMultipleToS3(files, folder);
-      return results.map(({ url, key, cdnUrl }) => ({
-        url: cdnUrl || url,
-        key,
-        cdnUrl,
-      }));
-    }
+    logInfo('Starting multiple images upload', { count: files.length });
 
-    // Fallback para storage local
-    const uploadPromises = files.map((file) => uploadFile(file, folder));
-    return await Promise.all(uploadPromises);
+    const uploadPromises = files.map((file) => uploadImage(file, options));
+    const results = await Promise.all(uploadPromises);
+
+    logInfo('Multiple images uploaded successfully', {
+      count: results.length,
+      totalSize: files.reduce((sum, file) => sum + file.size, 0),
+    });
+
+    return results;
   } catch (error) {
-    logError('Error uploading multiple files', error);
-    throw new Error('Failed to upload files');
+    logError('Error uploading multiple images', error);
+    throw new Error('Failed to upload multiple images');
   }
 };
 
 /**
- * Deleta um arquivo (S3 ou local)
+ * Deleta uma imagem (S3 ou local)
  */
-export const deleteFile = async (url: string): Promise<void> => {
+export const deleteImage = async (imageUrl: string): Promise<void> => {
   try {
-    // Se for URL do S3, deleta do S3
-    if (isS3Configured() && (url.includes('.s3.') || url.includes('cloudflare'))) {
-      const key = extractS3Key(url);
+    logDebug('Starting image deletion', { imageUrl });
 
-      if (key) {
-        await deleteFromS3(key);
-        logInfo('File deleted from S3', { key });
-        return;
-      }
+    // Se for URL do S3, deletar do S3
+    if (imageUrl.includes('s3.amazonaws.com') || imageUrl.includes('r2.cloudflarestorage.com')) {
+      // Extrair key da URL
+      const urlParts = imageUrl.split('/');
+      const key = urlParts.slice(3).join('/'); // Remove domínio
+      
+      await deleteFromS3(key);
+      
+      logInfo('Image deleted from S3', { key });
+      return;
     }
 
-    // Fallback para storage local
-    logDebug('Using local storage for deletion');
+    // Caso contrário, deletar do storage local
+    const uploadDir = path.join(process.cwd(), config.upload.dir);
+    
+    // Deletar todas as versões da imagem
+    await deleteImageVersions(imageUrl, uploadDir);
 
-    // Remove o prefixo /uploads/ da URL
-    const relativePath = url.replace(/^\/uploads\//, '');
-    const filepath = path.join(config.upload.dir, relativePath);
-
-    try {
-      await fs.unlink(filepath);
-      logInfo('File deleted locally', { filepath });
-    } catch (error: any) {
-      if (error.code !== 'ENOENT') {
-        throw error;
-      }
-      logDebug('File not found (already deleted?)', { filepath });
-    }
+    logInfo('Image deleted from local storage', { imageUrl });
   } catch (error) {
-    logError('Error deleting file', error);
-    throw new Error('Failed to delete file');
+    logError('Error deleting image', error);
+    throw new Error('Failed to delete image');
   }
 };
 
 /**
- * Deleta múltiplos arquivos
+ * Deleta múltiplas imagens
  */
-export const deleteMultipleFiles = async (urls: string[]): Promise<void> => {
+export const deleteMultipleImages = async (imageUrls: string[]): Promise<void> => {
   try {
-    // Se S3 estiver configurado e todas URLs forem do S3
-    if (
-      isS3Configured() &&
-      urls.every((url) => url.includes('.s3.') || url.includes('cloudflare'))
-    ) {
-      const keys = urls.map(extractS3Key).filter((key): key is string => key !== null);
+    logInfo('Starting multiple images deletion', { count: imageUrls.length });
 
-      if (keys.length > 0) {
-        await deleteMultipleFromS3(keys);
-        logInfo('Files deleted from S3', { count: keys.length });
-        return;
-      }
-    }
-
-    // Fallback para storage local
-    const deletePromises = urls.map((url) => deleteFile(url));
+    const deletePromises = imageUrls.map((url) => deleteImage(url));
     await Promise.all(deletePromises);
 
-    logInfo('Files deleted locally', { count: urls.length });
+    logInfo('Multiple images deleted successfully', { count: imageUrls.length });
   } catch (error) {
-    logError('Error deleting multiple files', error);
-    throw new Error('Failed to delete files');
+    logError('Error deleting multiple images', error);
+    throw new Error('Failed to delete multiple images');
   }
 };
 
 /**
- * Middleware para processar upload e salvar URL
+ * Atualiza uma imagem (deleta antiga e faz upload da nova)
  */
-export const processUpload = async (
-  req: Request,
-  _fieldName: string,
-  folder: string = 'uploads'
-) => {
-  const file = req.file;
+export const updateImage = async (
+  oldImageUrl: string | null,
+  newFile: Express.Multer.File,
+  options: {
+    folder?: string;
+    processImage?: boolean;
+    quality?: number;
+    addWatermark?: boolean;
+  } = {}
+): Promise<UploadResult> => {
+  try {
+    logDebug('Starting image update', {
+      oldImageUrl,
+      newFilename: newFile.originalname,
+    });
 
-  if (!file) {
-    return null;
+    // Fazer upload da nova imagem
+    const result = await uploadImage(newFile, options);
+
+    // Deletar imagem antiga (se existir)
+    if (oldImageUrl) {
+      try {
+        await deleteImage(oldImageUrl);
+      } catch (error) {
+        // Log mas não falha se não conseguir deletar a antiga
+        logError('Error deleting old image during update', error);
+      }
+    }
+
+    logInfo('Image updated successfully', {
+      oldUrl: oldImageUrl,
+      newUrl: result.url,
+    });
+
+    return result;
+  } catch (error) {
+    logError('Error updating image', error);
+    throw new Error('Failed to update image');
   }
-
-  const result = await uploadFile(file, folder);
-  return result.url;
 };
 
 /**
- * Middleware para processar múltiplos uploads
+ * Verifica se uma imagem existe (local ou S3)
  */
-export const processMultipleUploads = async (
-  req: Request,
-  _fieldName: string,
-  folder: string = 'uploads'
-) => {
-  const files = req.files as Express.Multer.File[];
+export const imageExists = async (imageUrl: string): Promise<boolean> => {
+  try {
+    // Se for URL do S3, assumir que existe (S3 é confiável)
+    if (imageUrl.includes('s3.amazonaws.com') || imageUrl.includes('r2.cloudflarestorage.com')) {
+      return true;
+    }
 
-  if (!files || files.length === 0) {
+    // Verificar no storage local
+    const filename = path.basename(imageUrl);
+    const filepath = path.join(process.cwd(), config.upload.dir, filename);
+
+    try {
+      await fs.access(filepath);
+      return true;
+    } catch {
+      return false;
+    }
+  } catch (error) {
+    logError('Error checking if image exists', error);
+    return false;
+  }
+};
+
+/**
+ * Obtém o tamanho de uma imagem
+ */
+export const getImageSize = async (imageUrl: string): Promise<number> => {
+  try {
+    // Se for URL do S3, não podemos obter o tamanho facilmente
+    if (imageUrl.includes('s3.amazonaws.com') || imageUrl.includes('r2.cloudflarestorage.com')) {
+      return 0;
+    }
+
+    // Obter tamanho do arquivo local
+    const filename = path.basename(imageUrl);
+    const filepath = path.join(process.cwd(), config.upload.dir, filename);
+
+    const stats = await fs.stat(filepath);
+    return stats.size;
+  } catch (error) {
+    logError('Error getting image size', error);
+    return 0;
+  }
+};
+
+/**
+ * Lista todas as imagens no storage local
+ */
+export const listLocalImages = async (): Promise<string[]> => {
+  try {
+    const uploadDir = path.join(process.cwd(), config.upload.dir);
+    
+    try {
+      const files = await fs.readdir(uploadDir);
+      return files.filter((file) => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.webp'].includes(ext);
+      });
+    } catch (error) {
+      // Se o diretório não existir, retornar array vazio
+      return [];
+    }
+  } catch (error) {
+    logError('Error listing local images', error);
     return [];
   }
-
-  const results = await uploadMultipleFiles(files, folder);
-  return results.map((r) => r.url);
 };
 
-export default {
-  uploadFile,
-  uploadMultipleFiles,
-  deleteFile,
-  deleteMultipleFiles,
-  processUpload,
-  processMultipleUploads,
+/**
+ * Calcula o tamanho total do storage local
+ */
+export const getLocalStorageSize = async (): Promise<number> => {
+  try {
+    const files = await listLocalImages();
+    const uploadDir = path.join(process.cwd(), config.upload.dir);
+
+    let totalSize = 0;
+    for (const file of files) {
+      const filepath = path.join(uploadDir, file);
+      try {
+        const stats = await fs.stat(filepath);
+        totalSize += stats.size;
+      } catch {
+        // Ignorar arquivos que não podem ser lidos
+      }
+    }
+
+    return totalSize;
+  } catch (error) {
+    logError('Error calculating local storage size', error);
+    return 0;
+  }
+};
+
+/**
+ * Formata tamanho de bytes para formato legível
+ */
+export const formatBytes = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '../config/database';
 import { sendSuccess } from '../utils/response';
-import { NotFoundError, ConflictError } from '../utils/errors';
+import { NotFoundError, ConflictError, AuthorizationError } from '../utils/errors';
 import { createCommentSchema, CreateCommentInput } from '../validators/recipe.validator';
 import { config } from '../config';
 

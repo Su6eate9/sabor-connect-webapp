@@ -26,10 +26,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+backend/logs/
 
 # OS
 .DS_Store
 Thumbs.db
+*.tmp
+*.temp
 
 # IDEs
 .vscode/
@@ -53,3 +56,26 @@ backend/uploads/
 *.pem
 *.key
 *.crt
+errors.txt
+TODO.md
+*.bak
+
+# Documentation (keep only README.md and PRD.md)
+APRESENTACAO.md
+ARCHITECTURE_ANALYSIS.md
+CHECKLIST_IMPLEMENTACAO.md
+COMANDOS_RAPIDOS.md
+COMECE_AQUI.md
+CONFIGURACAO_CLOUDFLARE_AWS.md
+DASHBOARD_METRICAS.md
+ESCOLHA_STORAGE.md
+GUIA_*.md
+IMPLEMENTACAO_*.md
+INDEX_*.md
+INDICE_*.md
+PLANO_DE_ACAO.md
+RELATORIO_*.md
+RESUMO_*.md
+SETUP_*.md
+STATUS_*.md
+UI_UX_*.md

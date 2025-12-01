@@ -10,6 +10,8 @@ import {
   UpdateRecipeInput,
 } from '../validators/recipe.validator';
 import { config } from '../config';
+import { uploadImage, updateImage, deleteImage } from '../utils/uploadHelper';
+import { logInfo, logError } from '../config/logger';
 
 export const getRecipes = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -163,11 +165,36 @@ export const createRecipe = async (req: Request, res: Response, next: NextFuncti
     const userId = (req as any).userId;
     const data = createRecipeSchema.parse(req.body) as CreateRecipeInput;
 
+    logInfo('Creating new recipe', {
+      userId,
+      title: data.title,
+      hasImage: !!(req as any).file,
+    });
+
     // Generate slug
     const slug = slugify(data.title, { lower: true, strict: true });
 
-    // Handle cover image from upload
-    const coverImageUrl = (req as any).file ? `/uploads/${(req as any).file.filename}` : null;
+    // Handle cover image upload
+    let coverImageUrl: string | null = null;
+    if ((req as any).file) {
+      try {
+        const uploadResult = await uploadImage((req as any).file, {
+          folder: 'recipes',
+          processImage: true,
+          quality: 85,
+          addWatermark: false,
+        });
+        coverImageUrl = uploadResult.url;
+
+        logInfo('Recipe image uploaded successfully', {
+          url: coverImageUrl,
+          sizes: uploadResult.sizes,
+        });
+      } catch (error) {
+        logError('Error uploading recipe image', error);
+        // Continuar sem imagem se o upload falhar
+      }
+    }
 
     // Create recipe with ingredients and tags
     const recipe = await prisma.recipe.create({
@@ -216,6 +243,11 @@ export const createRecipe = async (req: Request, res: Response, next: NextFuncti
       },
     });
 
+    logInfo('Recipe created successfully', {
+      recipeId: recipe.id,
+      slug: recipe.slug,
+    });
+
     return sendSuccess(
       res,
       {
@@ -225,6 +257,7 @@ export const createRecipe = async (req: Request, res: Response, next: NextFuncti
       201
     );
   } catch (error) {
+    logError('Error creating recipe', error);
     next(error);
   }
 };
@@ -234,6 +267,12 @@ export const updateRecipe = async (req: Request, res: Response, next: NextFuncti
     const userId = (req as any).userId;
     const { id } = req.params;
     const data = updateRecipeSchema.parse(req.body) as UpdateRecipeInput;
+
+    logInfo('Updating recipe', {
+      recipeId: id,
+      userId,
+      hasNewImage: !!(req as any).file,
+    });
 
     // Check if recipe exists and user is author
     const existingRecipe = await prisma.recipe.findUnique({
@@ -255,8 +294,29 @@ export const updateRecipe = async (req: Request, res: Response, next: NextFuncti
       updateData.slug = slugify(data.title, { lower: true, strict: true });
     }
 
+    // Handle cover image update
     if ((req as any).file) {
-      updateData.coverImageUrl = `/uploads/${(req as any).file.filename}`;
+      try {
+        const uploadResult = await updateImage(
+          existingRecipe.coverImageUrl,
+          (req as any).file,
+          {
+            folder: 'recipes',
+            processImage: true,
+            quality: 85,
+            addWatermark: false,
+          }
+        );
+        updateData.coverImageUrl = uploadResult.url;
+
+        logInfo('Recipe image updated successfully', {
+          oldUrl: existingRecipe.coverImageUrl,
+          newUrl: uploadResult.url,
+        });
+      } catch (error) {
+        logError('Error updating recipe image', error);
+        // Continuar sem atualizar a imagem se o upload falhar
+      }
     }
 
     // Handle ingredients update
@@ -309,11 +369,17 @@ export const updateRecipe = async (req: Request, res: Response, next: NextFuncti
       },
     });
 
+    logInfo('Recipe updated successfully', {
+      recipeId: recipe.id,
+      slug: recipe.slug,
+    });
+
     return sendSuccess(res, {
       ...recipe,
       tags: recipe.tags.map((rt) => rt.tag),
     });
   } catch (error) {
+    logError('Error updating recipe', error);
     next(error);
   }
 };
@@ -322,6 +388,8 @@ export const deleteRecipe = async (req: Request, res: Response, next: NextFuncti
   try {
     const userId = (req as any).userId;
     const { id } = req.params;
+
+    logInfo('Deleting recipe', { recipeId: id, userId });
 
     // Check if recipe exists and user is author
     const recipe = await prisma.recipe.findUnique({
@@ -336,12 +404,26 @@ export const deleteRecipe = async (req: Request, res: Response, next: NextFuncti
       throw new AuthorizationError();
     }
 
+    // Delete cover image if exists
+    if (recipe.coverImageUrl) {
+      try {
+        await deleteImage(recipe.coverImageUrl);
+        logInfo('Recipe image deleted', { url: recipe.coverImageUrl });
+      } catch (error) {
+        logError('Error deleting recipe image', error);
+        // Continuar com a exclusão da receita mesmo se a imagem não puder ser deletada
+      }
+    }
+
     await prisma.recipe.delete({
       where: { id },
     });
 
+    logInfo('Recipe deleted successfully', { recipeId: id });
+
     return sendSuccess(res, { message: 'Recipe deleted successfully' });
   } catch (error) {
+    logError('Error deleting recipe', error);
     next(error);
   }
 };

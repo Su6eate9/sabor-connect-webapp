@@ -44,7 +44,6 @@ export const Header = () => {
       <nav className="container-custom py-4">
         <div className="flex items-center justify-between gap-4">
           <Link to={ROUTES.HOME} className="flex items-center space-x-2 flex-shrink-0">
-            <span className="text-2xl">🍳</span>
             <span className="text-2xl font-display font-bold text-primary">SaborConnect</span>
           </Link>
 

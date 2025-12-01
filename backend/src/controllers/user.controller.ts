@@ -3,6 +3,39 @@ import prisma from '../config/database';
 import { sendSuccess } from '../utils/response';
 import { NotFoundError, AuthorizationError } from '../utils/errors';
 
+export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatarUrl: true,
+        bio: true,
+        createdAt: true,
+        _count: {
+          select: {
+            recipes: true,
+            favorites: true,
+            likes: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User');
+    }
+
+    return sendSuccess(res, user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
